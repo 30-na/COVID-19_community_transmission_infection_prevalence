@@ -19,8 +19,7 @@ Community Transmission refers to measures of the presence and spread of SARS-CoV
 -----------------------
 
 Datasets:  
-1.
-
+1. [Weekly COVID-19 County Level of Community Transmission Historical Changes](https://data.cdc.gov/Public-Health-Surveillance/Weekly-COVID-19-County-Level-of-Community-Transmis/jgk8-6dpn)
 -----------------------
 
 Sources:  
