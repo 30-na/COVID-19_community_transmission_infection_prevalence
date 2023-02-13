@@ -28,3 +28,5 @@ Sources:
 1. [Calibrating COVID-19 community transmission risk levels to reflect infection prevalence](https://www.sciencedirect.com/science/article/pii/S175543652200086X)  
 
 2. [National and Subnational estimates for the United States of America](https://epiforecasts.io/covid/posts/national/united-states/)
+
+3. [COVID-19 Integrated County View](https://covid.cdc.gov/covid-data-tracker/#county-view?list_select_state=all_states&list_select_county=all_counties&data-type=Risk)
