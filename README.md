@@ -14,6 +14,8 @@ Community Transmission refers to measures of the presence and spread of SARS-CoV
 * Substantial
 * high
  
+![image](https://user-images.githubusercontent.com/78888004/218536226-b49eaba1-725b-49b3-b2d4-79bd51cde013.png)
+
 -----------------------
 
 Datasets:  
