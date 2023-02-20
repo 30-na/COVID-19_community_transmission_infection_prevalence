@@ -1,8 +1,7 @@
 #
-
 library(data.table)
 library(dplyr)
-
+library(usdata)
 ###################################
 # Load Harvard data
 rt.data = fread("RawData/rt.csv")
@@ -43,74 +42,75 @@ linePlot(data = harvard.summary,
          title = "",
          filename = "rt_harvard_state")
 
+###########################################
+
+# load prevalence data set
 # filter date after "2020-07-01"
 start.date = "2021-11-30"
-end.date = "2022-04-05"
+# last day with estimate type in harvard data
+end.date = "2022-03-14"
 transmission.levels = c("low", "moderate", "substantial", "high")
-cdc.transmission = cdc.data %>%
-  rename("state" = state_name) %>%
-  mutate(date = as.Date(date, format="%m/%d/%Y"),
-         # change data type
-         cases_per_100K_7_day_count_change = as.numeric(cases_per_100K_7_day_count_change),
-         # remove negative new case
-         cases_per_100K_7_day_count_change = if_else(cases_per_100K_7_day_count_change < 0,
-                                                     NA_real_,
-                                                     cases_per_100K_7_day_count_change),
-         # Transmission.level for newcase and positive test
-         transmission.level.newcase = case_when(cases_per_100K_7_day_count_change < 10 ~ "low",
-                                                cases_per_100K_7_day_count_change >= 10 &
-                                                  cases_per_100K_7_day_count_change < 50 ~ "moderate",
-                                                cases_per_100K_7_day_count_change >= 50 &
-                                                  cases_per_100K_7_day_count_change < 100 ~ "substantial",
-                                                cases_per_100K_7_day_count_change >= 100 ~ "high"),
-         transmission.level.positivetest = case_when(percent_test_results_reported_positive_last_7_days < 5 ~ "low",
-                                                     percent_test_results_reported_positive_last_7_days >= 5 &
-                                                       percent_test_results_reported_positive_last_7_days <8 ~ "moderate",
-                                                     percent_test_results_reported_positive_last_7_days >= 8 &
-                                                       percent_test_results_reported_positive_last_7_days < 10 ~ "substantial",
-                                                     percent_test_results_reported_positive_last_7_days > 10 ~ "high"),
-         # Change data type to factor
-         community_transmission_level = factor(community_transmission_level,
-                                               levels = transmission.levels),
-         transmission.level.newcase = factor(transmission.level.newcase,
-                                             levels = transmission.levels),
-         transmission.level.positivetest = factor(transmission.level.positivetest,
-                                                  levels = transmission.levels))  %>%
-  filter(state != "",
-         date >= start.date,
-         date <= end.date)
 
-summary(cdc.transmission)
+load("RawData/Prevalence_Incidence_all.Rdata")
 
 
 
 
+prevalence.data = alldata %>%
+  dplyr::select(
+    date
+    ,type
+    ,state
+    ,Cases_tau_pct
+    ,PositivePct_tau
+    ,CDCLevelCommTrans
+    ) %>%
+  dplyr::filter(
+    type == "state"
+    ,date > start.date
+    ,date < end.date
+    ) %>%
+  mutate(
+    state = abbr2state(state)
+  )
 
-# merge two datasets
-merged.data = cdc.transmission %>%
-  left_join(harvard.rt, by = c("date", "state"))
+summary(alldata)
+
+prevalence.data %>%
+  group_by(CDCLevelCommTrans) %>%
+  count()
+
+barPlot(
+  data = prevalence.data
+  ,x = "CDCLevelCommTrans"
+  ,xlab = ""
+  ,title = "Number of states with different transmission risk levels from 2021-11-30 to 2022-03-14"
+  ,filename = "tansmission_barplot")
+
+######################################################################
+# merge to data set
+
+merged.data = prevalence.data %>%
+  left_join(harvard.rt, by=c("state", "date")) %>%
+  na.omit(CDCLevelCommTrans)
 
 
-names(merged.data)
-density_plot(data = merged.data,
+
+
+densityPlot(data = merged.data,
              x = "mean",
              xlab = "Mean Covid-19 Reproduction Number (R)",
-             title = "Reproduction Number Density for different Transmission Risk Level",
-             group = "community_transmission_level",
-             filename = "fig.rt.density.transmission")
+             title = "Reproduction Number Density for Transmission Risk Level",
+             group = "CDCLevelCommTrans",
+             filename = "fig.rt.density.prevalence.transmission")
 
+boxPlot(
+  data = merged.data
+  ,x = "CDCLevelCommTrans"
+  ,y = "mean"
+  ,xlab = "Mean Covid-19 Reproduction Number (R)"
+  ,title = "Reproduction Number Density for Transmission Risk Level"
+  ,filename = "fig.rt.boxplot.prevalence.transmission")
 
-density_plot(data = merged.data,
-             x = "mean",
-             xlab = "Mean Covid-19 Reproduction Number (R)",
-             title = "Reproduction Number Density for different Transmission Risk Level (only based on positive test)",
-             group = "transmission.level.positivetest",
-             filename = "fig.rt.density.transmission.positivetest")
-
-
-density_plot(data = merged.data,
-             x = "mean",
-             xlab = "Mean Covid-19 Reproduction Number (R)",
-             title = "Reproduction Number Density for different Transmission Risk Level (only based on new case)",
-             group = "transmission.level.newcase",
-             filename = "fig.rt.density.transmission.newcas")
+fit = lm(mean ~ CDCLevelCommTrans, data=merged.data)
+TukeyHSD(aov(fit))
