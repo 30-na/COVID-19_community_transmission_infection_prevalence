@@ -31,3 +31,4 @@ Sources:
 3. [COVID-19 Integrated County View](https://covid.cdc.gov/covid-data-tracker/#county-view?list_select_state=all_states&list_select_county=all_counties&data-type=Risk)
 
 4. [Harvard - National and Subnational Estimates of the Covid 19 Reproduction Number (R) for the United States of America Based on Test Results](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/BZ7FPH)
+5. [Estimating the generation interval for COVID-19 hosted by Reich Lab](https://github.com/epiforecasts/covid-us-forecasts/blob/master/models/rt/data/summary/2022-06-27/rt.csv)
