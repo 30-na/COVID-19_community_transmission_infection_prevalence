@@ -46,30 +46,27 @@ densityPlot = function(data,
 }
 
 
-# line plots
-linePlot = function(data, x, y, group, xlab = "", ylab="", title = "", filename){
+# point plots
+pointPlot = function(data, x, y, group, xlab = "", ylab="", title = "", filename){
   x = data[[x]]
   y = data[[y]]
   group = data[[group]]
   df = data.frame(x = x,
+                  y = y,
                   group = group)
+  
   fig = ggplot(df)+
     geom_point(aes(x=x,
                    y=y,
                    color=group,
                    group=group),
-               alpha=.2)+
-    geom_line(aes(x=x,
-                    y=y,
-                     color=group,
-                     group=group),
-                 alpha=0.6,
-              size = 2)+
+               alpha=.7)+
     theme_bw()+
     labs(title = title)+
     xlab(xlab)+
     ylab(ylab)+
-    ylim(c(0,3))
+    ylim(c(0,3))+
+    scale_x_date(date_breaks = "1 month", date_labels =  "%b %Y")
   
   ggsave(paste0("Figures/", filename, ".jpg"),
          fig, 
@@ -80,7 +77,7 @@ linePlot = function(data, x, y, group, xlab = "", ylab="", title = "", filename)
 
 
 
-## 
+##bar plot
 barPlot = function(data, x, y, group, xlab = "", ylab="", title = "", filename){
   x = data[[x]]
   df = data.frame(x = x)
@@ -111,6 +108,43 @@ boxPlot = function(data, x, y, xlab = "", ylab="", title = "", filename){
     labs(title = title)+
     xlab(xlab)+
     ylab(ylab)
+  
+  ggsave(paste0("Figures/", filename, ".jpg"),
+         fig, 
+         height=6,
+         width=8,
+         scale=1.65)
+}
+
+
+
+
+# line plots
+linePlot = function(data, x, y, group, xlab = "", ylab="", title = "", filename){
+  x = data[[x]]
+  y = data[[y]]
+  group = data[[group]]
+  df = data.frame(x = x,
+                  y = y,
+                  group = group)
+  
+  fig = ggplot(df)+
+    geom_point(aes(x=x,
+                   y=y,
+                   color=group,
+                   group=group),
+               alpha=.2)+
+    geom_line(aes(x=x,
+                   y=y,
+                   color=group,
+                   group=group),
+               alpha=.8)+
+    theme_bw()+
+    labs(title = title)+
+    xlab(xlab)+
+    ylab(ylab)+
+    ylim(c(0,3))+
+    scale_x_date(date_breaks = "1 month", date_labels =  "%b %Y")
   
   ggsave(paste0("Figures/", filename, ".jpg"),
          fig, 
