@@ -32,3 +32,4 @@ Sources:
 
 4. [Harvard - National and Subnational Estimates of the Covid 19 Reproduction Number (R) for the United States of America Based on Test Results](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/BZ7FPH)
 5. [Estimating the generation interval for COVID-19 hosted by Reich Lab](https://github.com/epiforecasts/covid-us-forecasts/blob/master/models/rt/data/summary/2022-06-27/rt.csv)
+6. [United States COVID-19 Cases and Deaths by State over Time - ARCHIVED](https://data.cdc.gov/Case-Surveillance/United-States-COVID-19-Cases-and-Deaths-by-State-o/9mfq-cb36)
