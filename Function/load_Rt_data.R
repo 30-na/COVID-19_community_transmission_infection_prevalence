@@ -27,12 +27,12 @@ summary(data.case)
 # list of states
 state.list = unique(data.case$state)
 
-columns = c("date", "state", "t_start", "t_end", "Mean(R)", "Std(R)",
+original.columns = c("date", "state", "t_start", "t_end", "Mean(R)", "Std(R)",
     "Quantile.0.025(R)", "Quantile.0.05(R)", "Quantile.0.25(R)",
     "Median(R)", "Quantile.0.75(R)", "Quantile.0.95(R)", "Quantile.0.975(R)")
 
-rt.data = data.frame(matrix(nrow = 0, ncol = length(columns)))   
-colnames(rt.data) = columns
+rt.data = data.frame(matrix(nrow = 0, ncol = length(original.columns)))   
+colnames(rt.data) = original.columns
   
 for (s in state.list) {
   state_data <- subset(data.case
@@ -59,16 +59,61 @@ for (s in state.list) {
     )
 }
 
-columns = c("date", "state", "t_start", "t_end", "Mean", "Std",
+edited.columns = c("date", "state", "t_start", "t_end", "Mean", "Std",
             "Quantile.0.025", "Quantile.0.05", "Quantile.0.25",
             "Median", "Quantile.0.75", "Quantile.0.95", "Quantile.0.975")
 
-colnames(rt.data) = columns
+colnames(rt.data) = edited.columns
 
 save(rt.data
      ,file = "ProcessedData/rt.data.RDA")
-# Visualize the estimated R_t values
 
+
+####################### make it smoother
+rt.data = data.frame(matrix(nrow = 0, ncol = length(original.columns)))   
+colnames(rt.data) = original.columns
+
+for (s in state.list) {
+  state_data <- subset(data.case
+                       , state == s)
+  
+  state_data = state_data[order(state_data$date), ] # sort by date
+  
+  est = estimate_R(
+    state_data$case
+    , method = "parametric_si"
+    , config = make_config(
+      list(
+        mean_si = 2.6
+        , std_si = 1.5
+        )
+      )
+  )
+  
+  state.rt = cbind(
+    date = state_data$date[-(1:7)]
+    ,state = s
+    ,est$R
+  )
+  
+  
+  rt.data <- rbind(
+    rt.data
+    , state.rt
+  )
+}
+
+
+
+colnames(rt.data) = edited.columns
+
+save(rt.data
+     ,file = "ProcessedData/rt.7days.data.RDA")
+
+
+
+
+# Visualize the estimated R_t values
 # window_size parameter controls the length of the sliding windows, 
 # while the window_step parameter controls the amount by which the windows
 # are shifted over time. The optimal values for these parameters depend on
