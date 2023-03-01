@@ -50,8 +50,8 @@ prevalence.data = alldata %>%
     ) %>%
   dplyr::filter(
     type == "state"
-    ,date > start.date
-    ,date < end.date
+    #,date > start.date
+    #,date < end.date
     ) %>%
   mutate(
     state = abbr2state(state)
