@@ -8,10 +8,11 @@ harvard.summary = harvard.rt %>%
   group_by(date,type) %>%
   summarize(mean = mean(mean))
 
-linePlot(data = harvard.summary,
+linePlot(data = subset(harvard.summary,
+                       date > start.date &
+                         date < end.date),
          x = "date",
          y = "mean",
-         group = "type",
          xlab = "",
          ylab="",
          title = "",
@@ -21,7 +22,12 @@ harvard.summary = harvard.rt %>%
   group_by(date,state) %>%
   summarize(mean = mean(mean))
 
-linePlot(data = harvard.summary,
+start.date = "2021-11-30"
+end.date = "2022-03-14"
+
+linePlot(data = subset(harvard.rt,
+                       date > start.date &
+                         date < end.date),
          x = "date",
          y = "mean",
          group = "state",
