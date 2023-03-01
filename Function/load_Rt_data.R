@@ -3,7 +3,7 @@ library(data.table)
 library(dplyr)
 library(usdata)
 
-# Load the daily case data for New York state
+
 fileName = "United_States_COVID-19_Cases_and_Deaths_by_State_over_Time_-_ARCHIVED.csv"
 dest = "RawData"
 data.cdc = fread(paste(dest, fileName, sep="/"))
