@@ -120,35 +120,60 @@ boxPlot = function(data, x, y, xlab = "", ylab="", title = "", filename){
 
 
 # line plots
-linePlot = function(data, x, y, group, xlab = "", ylab="", title = "", filename){
-  x = data[[x]]
-  y = data[[y]]
-  group = data[[group]]
-  df = data.frame(x = x,
-                  y = y,
-                  group = group)
+linePlot = function(data, x, y, group = NA, xlab = "", ylab="", title = "", filename){
+
+  if(!is.na(group)){
+    x = data[[x]]
+    y = data[[y]]
+    group = data[[group]]
+    df = data.frame(x = x,
+                    y = y,
+                    group = group)
+    
+    fig = ggplot(df)+
+      geom_point(aes(x=x,
+                     y=y,
+                     color=group,
+                     group=group),
+                 alpha=.2)+
+      geom_line(aes(x=x,
+                    y=y,
+                    color=group,
+                    group=group),
+                alpha=.8)+
+      theme_bw()+
+      labs(title = title)+
+      xlab(xlab)+
+      ylab(ylab)+
+      ylim(c(0,3))+
+      scale_x_date(date_breaks = "1 month", date_labels =  "%b %Y")
+  }
+    
+    
   
-  fig = ggplot(df)+
-    geom_point(aes(x=x,
-                   y=y,
-                   color=group,
-                   group=group),
-               alpha=.2)+
-    geom_line(aes(x=x,
-                   y=y,
-                   color=group,
-                   group=group),
-               alpha=.8)+
-    theme_bw()+
-    labs(title = title)+
-    xlab(xlab)+
-    ylab(ylab)+
-    ylim(c(0,3))+
-    scale_x_date(date_breaks = "1 month", date_labels =  "%b %Y")
-  
-  ggsave(paste0("Figures/", filename, ".jpg"),
-         fig, 
-         height=6,
-         width=8,
-         scale=1.65)
+  if(is.na(group)){
+      x = data[[x]]
+      y = data[[y]]
+      df = data.frame(x = x,
+                      y = y)
+      
+      fig = ggplot(df)+
+        geom_point(aes(x=x,
+                       y=y),
+                   alpha=.2)+
+        geom_line(aes(x=x,
+                      y=y),
+                  alpha=.8)+
+        theme_bw()+
+        labs(title = title)+
+        xlab(xlab)+
+        ylab(ylab)+
+        ylim(c(0,3))+
+        scale_x_date(date_breaks = "1 month", date_labels =  "%b %Y")
+  }
+    ggsave(paste0("Figures/", filename, ".jpg"),
+           fig, 
+           height=6,
+           width=8,
+           scale=1.65)
 }
