@@ -21,6 +21,15 @@ linePlot(data = subset(rt.data,
          filename = "rtNumbercheck")
 
 
+linePlot(data = rt.data,
+         x = "date",
+         y = "Mean",
+         group = "state",
+         xlab = "",
+         ylab="",
+         title = "",
+         filename = "rtNumber")
+
 rt.summary = rt.data %>%
   group_by(date) %>%
   summarize(mean = mean(Mean))
@@ -38,4 +47,11 @@ linePlot(data = subset(rt.summary,
 
 
 
+linePlot(data = rt.summary,
+         x = "date",
+         y = "mean",
+         xlab = "",
+         ylab="",
+         title = "",
+         filename = "rt_mean")
 
