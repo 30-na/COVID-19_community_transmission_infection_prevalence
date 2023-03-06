@@ -34,3 +34,8 @@ Sources:
 5. [Estimating the generation interval for COVID-19 hosted by Reich Lab](https://github.com/epiforecasts/covid-us-forecasts/blob/master/models/rt/data/summary/2022-06-27/rt.csv)
 6. [United States COVID-19 Cases and Deaths by State over Time - ARCHIVED](https://data.cdc.gov/Case-Surveillance/United-States-COVID-19-Cases-and-Deaths-by-State-o/9mfq-cb36)
 7. [GitHub EpiNow2: Estimate real-time case counts and time-varying epidemiological parameters](https://github.com/epiforecasts/EpiNow2)
+8. [Example of using EpiNow2 to estimate the Rt of Covid-19 in last 3 months for a country in the WHO dataset for France](https://gist.github.com/seabbs/163d0f195892cde685c70473e1f5e867)
+9. 
+
+
+
