@@ -5,3 +5,5 @@
 RawData/
 ProcessedData/
 Figures/
+logs/
+results/
