@@ -35,7 +35,8 @@ Sources:
 6. [United States COVID-19 Cases and Deaths by State over Time - ARCHIVED](https://data.cdc.gov/Case-Surveillance/United-States-COVID-19-Cases-and-Deaths-by-State-o/9mfq-cb36)
 7. [GitHub EpiNow2: Estimate real-time case counts and time-varying epidemiological parameters](https://github.com/epiforecasts/EpiNow2)
 8. [Example of using EpiNow2 to estimate the Rt of Covid-19 in last 3 months for a country in the WHO dataset for France](https://gist.github.com/seabbs/163d0f195892cde685c70473e1f5e867)
-9. 
+9. [United States COVID-19 Community Levels by County](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni)
+10. [The New York Times Coronavirus Case Data for Every U.S. County](https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2022.csv)
 
 
 
