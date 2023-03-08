@@ -37,7 +37,7 @@ Sources:
 8. [Example of using EpiNow2 to estimate the Rt of Covid-19 in last 3 months for a country in the WHO dataset for France](https://gist.github.com/seabbs/163d0f195892cde685c70473e1f5e867)
 9. [United States COVID-19 Community Levels by County](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni)
 10. [The New York Times Coronavirus Case Data for Every U.S. County](https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2022.csv)
-11.[United States COVID-19 County Level of Community Transmission as Originally Posted - ARCHIVED](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-County-Level-of-Community-T/8396-v7yb)
+11. [United States COVID-19 County Level of Community Transmission as Originally Posted - ARCHIVED](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-County-Level-of-Community-T/8396-v7yb)
 
 
 
