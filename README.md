@@ -38,6 +38,8 @@ Sources:
 9. [United States COVID-19 Community Levels by County](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni)
 10. [The New York Times Coronavirus Case Data for Every U.S. County](https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2022.csv)
 11. [United States COVID-19 County Level of Community Transmission as Originally Posted - ARCHIVED](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-County-Level-of-Community-T/8396-v7yb)
+12. [NCHS Urban-Rural Classification Scheme for Counties](https://www.cdc.gov/nchs/data_access/urban_rural.htm)
+13. [2010 Census Urban and Rural Classification and Urban Area Criteria](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural/2010-urban-rural.html)
 
 
 
