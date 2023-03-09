@@ -84,16 +84,4 @@ save(out, file="ProcessedData/out_us_rt.RDA")
 
 
 
-?epinow
-str(out)
-plot(out[["estimates"]][["summarised"]]$median,
-     x=1:length(out[["estimates"]][["summarised"]]$mean))
-names(out)
-r = (out[["estimates"]][["summarised"]]$variable) == "growth_rate"
-plot(out[["estimates"]][["summarised"]]$mean[r])
 
-
-r = (out[["estimates"]][["summarised"]]$variable) == "R"
-plot(out[["estimates"]][["summarised"]]$mean[r])
-
-summary(out)
