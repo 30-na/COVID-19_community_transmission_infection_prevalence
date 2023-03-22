@@ -63,7 +63,7 @@ save(counties.transmission.newCase,
      file="ProcessedData/counties.transmission.newCase.RDA")
 
 save(counties.transmission.newCase,
-     file="InputColabData/counties.transmission.newCase.RDA")
+     file="ColabData/counties.transmission.newCase.RDA")
 
 
 
