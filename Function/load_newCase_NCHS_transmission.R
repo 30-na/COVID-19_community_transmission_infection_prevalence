@@ -17,6 +17,7 @@ counties.transmission =  counties.transmission.file %>%
   dplyr::select(
     state,
     fips_code, 
+    county_name,
     date,
     cases_per_100K_numeric,
     cases_per_100K_7_day_count_change,
@@ -51,6 +52,7 @@ counties.transmission.newCase = counties.transmission %>%
   dplyr::select(
     state,
     fips_code,
+    county_name,
     date,
     confirm,
     UR_code,
