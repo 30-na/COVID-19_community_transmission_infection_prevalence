@@ -37,7 +37,7 @@ counties.transmission.newCase = counties.transmission %>%
     county.NCHS, by=c("state", "fips_code")
     ) %>%
   dplyr::mutate(
-    confirm = cases_per_100K_numeric/100000*pop_2020,
+    confirm = as.integer(cases_per_100K_numeric/100000*pop_2020),
     # When the case counts used to calculate the total new case rate
     # metric ("cases_per_100K_7_day_count_change") is greater than zero
     # and less than 10, this metric is set to "suppressed" to protect 
