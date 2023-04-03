@@ -54,6 +54,7 @@ counties.transmission.newCase = counties.transmission %>%
     fips_code,
     county_name,
     date,
+    cases_per_100K_numeric,
     confirm,
     UR_code,
     UR_category,
