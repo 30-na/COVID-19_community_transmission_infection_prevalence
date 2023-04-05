@@ -38,14 +38,21 @@ for (file in file_list) {
 }
 
 
-# load 
+# load data
 load("ProcessedData/counties.transmission.newCase.RDA")
-str(counties.transmission.newCase)
-str(merged_data)
+
+
 ## merge data
 rt_counties_TranRisk = merged_data %>%
   dplyr::left_join(counties.transmission.newCase,
-                   by=c("date", "state", "fips_code", "county_name"))
+                   by=c("date", "state", "fips_code", "county_name")) %>%
+  # add the Rt number for three weeks later
+  # Note we assume the we have data for all of the day
+  dplyr::group_by(state, county_name)%>%
+  dplyr::mutate(
+    Rt_next3weeks = lead(Rt, n = 21L)
+    )
+
 
 
 save(rt_counties_TranRisk
