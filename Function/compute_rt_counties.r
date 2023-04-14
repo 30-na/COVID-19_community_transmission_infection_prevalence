@@ -110,5 +110,5 @@ for(i in 1:length(target.counties.list)){
   #  )
   
   # save file to github
-  save(rt.df, file = paste0("ProcessedData/RtCounties/",i, "_",  target.counties.list[i], "_rt.rda" ))
+  save(rt.df, file = paste0("ProcessedData/RtCountiesNCHS/",i, "_",  target.counties.list[i], "_rt.rda" ))
 }

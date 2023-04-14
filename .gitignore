@@ -3,7 +3,6 @@
 .RData
 .Ruserdata
 RawData/
-ProcessedData/
 Figures/
 logs/
 results/
