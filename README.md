@@ -41,5 +41,5 @@ Sources:
 12. [NCHS Urban-Rural Classification Scheme for Counties](https://www.cdc.gov/nchs/data_access/urban_rural.htm)
 13. [2010 Census Urban and Rural Classification and Urban Area Criteria](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural/2010-urban-rural.html)
 14. [United States COVID-19 County Level of Community Transmission Historical Changes - ARCHIVED](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-County-Level-of-Community-T/nra9-vzzn)
-
+15. [The Covid Act Now API](https://covidactnow.org/data-api)
 
