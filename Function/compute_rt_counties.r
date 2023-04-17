@@ -14,7 +14,7 @@ library(data.table)
 load("ProcessedData/counties.transmission.newCase.RDA")
 head(counties.transmission.newCase)
 # 1. define Targets
-target.NCHS = "Large central metro"
+target.NCHS = "Medium metro"
 names(counties.transmission.newCase)
 # set number of cores to use fitting the model
 options(mc.cores = 4)
@@ -53,7 +53,8 @@ target.counties.list = unique(LCM_counties$state_fips)
 #colnames(LCM_counties_rt) = LCM_counties_rt
 
 
-for(i in 1:length(target.counties.list)){
+#for(i in 1:length(target.counties.list)){
+for(i in 1:50){
   # set target county
   target.county = target.counties.list[i]
   
@@ -110,5 +111,5 @@ for(i in 1:length(target.counties.list)){
   #  )
   
   # save file to github
-  save(rt.df, file = paste0("ProcessedData/RtCountiesNCHS/",i, "_",  target.counties.list[i], "_rt.rda" ))
+  save(rt.df, file = paste0("ProcessedData/RtCounties_all/",i, "_",  target.counties.list[i], "_rt.rda" ))
 }
