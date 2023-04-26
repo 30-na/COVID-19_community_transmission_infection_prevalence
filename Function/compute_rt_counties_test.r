@@ -47,7 +47,7 @@ target.counties.list = unique(LCM_counties$state_fips)
 #colnames(LCM_counties_rt) = LCM_counties_rt
 
 
-for(i in 1:10){
+for(i in 1:6){
   # set target county
   target.county = target.counties.list[i]
   
@@ -104,5 +104,5 @@ for(i in 1:10){
   #  )
   
   # save file to github
-  save(rt.df, file = paste0("ProcessedData/RtCounties_all/",i, "_",  target.counties.list[i], "_rt.rda" ))
+  save(rt.df, file = paste0("/RtCounties/",i, "_test_",  target.counties.list[i], "_rt.rda" ))
 }
