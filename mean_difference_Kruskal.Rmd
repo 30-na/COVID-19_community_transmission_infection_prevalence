@@ -1,0 +1,128 @@
+---
+title: "Kruskal-Wallis Test for Compair mean of Rt number in CDC Risk level Group"
+author: "Sina Mokhtar"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r echo = F, message=FALSE, warning = F}
+library(dplyr)
+library(ggplot2)
+library(car)
+library(FSA)
+
+# Load CovidActNow Data and NCHS Data
+load("RawData/CovidActNow.rda")
+load("ProcessedData/county.NCHS.RDA")
+
+
+# Clean and Merged Data
+data = covid_data %>%
+  dplyr::select(
+    date,
+    state,
+    county,
+    "fips_code" = fips,
+    # R_t, or the estimated number of infections arising from a typical case
+    "infection_rate" = metrics.infectionRate,
+    #  Enum: 0 1 2 3 4 Community transmission level for region, calculated using the CDC definition.
+    # Possible values:  0: Low - 1: Moderate - 2: Substantial - 3: High - 4: Unknown
+    cdcTransmissionLevel
+  ) %>%
+  dplyr::mutate(
+    cdcTransmissionLevel = case_when(
+      cdcTransmissionLevel == 0 ~ "Low",
+      cdcTransmissionLevel == 1 ~ "Moderate",
+      cdcTransmissionLevel == 2 ~ "Substantial",
+      cdcTransmissionLevel == 3 ~ "High",
+      cdcTransmissionLevel == 4 ~ NA_character_,
+      TRUE ~ NA_character_
+    ),
+    date = as.Date(date, format = "%y-%m-%d"),
+    cdcTransmissionLevel = factor(
+      cdcTransmissionLevel,
+      levels = c("Low", "Moderate", "Substantial", "High")
+    )
+  ) %>%
+  left_join(county.NCHS,
+            by = c("fips_code", "state")) %>%
+  na.omit(cdcTransmissionLevel,
+          UR_category)%>%
+  group_by(county, state) %>%
+  mutate(mean_last_7_days = zoo::rollmean(infection_rate, k = 7, fill = NA, align = "right"))
+```
+
+
+## Sample sizes across groups
+
+```{r echo = F}
+data %>%
+  group_by(cdcTransmissionLevel) %>%
+  count() %>%
+  rename("Sample Size" = n)
+```
+
+
+## Homogeneity of variances across groups
+
+The Levene’s Test is a statistical test used to evaluate the equality of variances of a continuous variable across different groups or categories.
+
+```{r}
+# reject constant variance assumption if p-value of the test is less than 0.05
+
+leveneTest(mean_last_7_days ~ cdcTransmissionLevel,
+data=data)
+```
+
+The null hypothesis of the test is that the variances of the mean_last_7_days variable are equal across all levels of the cdcTransmissionLevel variable. If the p-value is less than 0.05, we reject the null hypothesis and conclude that the variances are not equal.
+
+In our case, the p-value is less than 0.05 (< 2.2e-16), which means we can reject the null hypothesis and conclude that the variances of mean_last_7_days are not equal across all levels of cdcTransmissionLevel. Therefor we use Kruskal-Wallis test
+
+
+
+## Kruskal-Wallis test
+The Kruskal-Wallis test is a non-parametric test used to determine whether there are statistically significant differences between three or more groups.
+
+```{r}
+kruskal.test(mean_last_7_days ~ cdcTransmissionLevel,
+data=data)
+
+```
+
+The output of the test suggests that the p-value is less than the significance level of 0.05, indicating strong evidence against the null hypothesis that there are no differences between the groups. Therefore, we can conclude that there is a significant difference in the distribution of the mean_last_7_days variable across the four levels of cdcTransmissionLevel.
+
+
+## Dunn’s Test
+
+If the results of a Kruskal-Wallis test are statistically significant, then it’s appropriate to conduct Dunn’s Test to determine exactly which groups are different.
+```{r}
+#perform Dunn's Test with Bonferroni correction for p-values
+dunnTest = dunnTest(mean_last_7_days ~ cdcTransmissionLevel,
+         data=data,
+         method="bonferroni")
+dunnTest
+```
+
+it looks like all of the pairwise comparisons have very small adjusted p-values, which means that the differences between the levels are statistically significant.
+The group with the highest mean is the Low transmission group, followed by the Moderate transmission group, then the High transmission group, and finally the Substantial transmission group with the lowest mean.
+
+```{r}
+data %>% 
+  group_by(cdcTransmissionLevel)%>%
+  summarize(Rtmean = mean(mean_last_7_days, na.rm = T),
+            Rtmedian = median(mean_last_7_days, na.rm = T),
+            RtVariance = var(mean_last_7_days, na.rm = T)) %>%
+  arrange(Rtmean)
+```
+
+
+
+
+
+
+
