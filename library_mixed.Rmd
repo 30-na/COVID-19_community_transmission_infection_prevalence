@@ -1,0 +1,69 @@
+---
+title: "Untitled"
+author: "Sina Mokhtar"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## library(lme4)
+
+```{r cars}
+library(lme4)
+# Fit a mixed model using lme4
+lme4_model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+summary(lme4_model)
+```
+```{r}
+# Load the required packages
+library(lme4)
+library(nlme)
+library(glmmTMB)
+library(MCMCglmm)
+library(brms)
+library(gamm4)
+library(lmerTest)
+library(glmmADMB)
+library(INLA)
+
+# Fit a mixed model using lme4
+lme4_model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+summary(lme4_model)
+
+# Fit a mixed model using nlme
+nlme_model <- lme(Reaction ~ Days, random = ~1 | Subject, data = sleepstudy)
+summary(nlme_model)
+
+# Fit a mixed model using glmmTMB
+glmmTMB_model <- glmmTMB(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+summary(glmmTMB_model)
+
+# Fit a mixed model using MCMCglmm
+MCMCglmm_model <- MCMCglmm(Reaction ~ Days, random = ~ Subject, data = sleepstudy)
+summary(MCMCglmm_model)
+
+# Fit a mixed model using brms
+brms_model <- brm(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+summary(brms_model)
+
+# Fit a mixed model using gamm4
+gamm4_model <- gamm4(Reaction ~ s(Days) + (1 | Subject), data = sleepstudy)
+summary(gamm4_model)
+
+# Fit a mixed model using lmerTest
+lmerTest_model <- lmerTest::lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+summary(lmerTest_model)
+
+# Fit a mixed model using glmmADMB
+glmmADMB_model <- glmmadmb(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+summary(glmmADMB_model)
+
+# Fit a mixed model using INLA
+inla_model <- inla(Reaction ~ Days + f(Subject, model = "iid"), data = sleepstudy, family = "gaussian")
+summary(inla_model)
+
+```
+
