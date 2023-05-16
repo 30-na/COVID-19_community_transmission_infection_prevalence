@@ -2,8 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-ProcessedData/
 RawData/
 Figures/
 logs/
 results/
+weeklyReport/
