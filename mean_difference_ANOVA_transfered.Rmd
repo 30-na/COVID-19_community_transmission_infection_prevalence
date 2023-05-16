@@ -1,0 +1,128 @@
+---
+title: "Anova Test for Compare mean of Rt number in CDC Risk level Group"
+author: "Sina Mokhtar"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r echo = F, message=FALSE, warning=F}
+library(dplyr)
+library(ggplot2)
+library(car)
+library(FSA)
+
+# Load CovidActNow Data and NCHS Data
+load("RawData/CovidActNow.rda")
+load("ProcessedData/county.NCHS.RDA")
+
+
+# Clean and Merged Data
+data = covid_data %>%
+  dplyr::select(
+    date,
+    state,
+    county,
+    "fips_code" = fips,
+    # R_t, or the estimated number of infections arising from a typical case
+    "infection_rate" = metrics.infectionRate,
+    #  Enum: 0 1 2 3 4 Community transmission level for region, calculated using the CDC definition.
+    # Possible values:  0: Low - 1: Moderate - 2: Substantial - 3: High - 4: Unknown
+    cdcTransmissionLevel
+  ) %>%
+  dplyr::mutate(
+    cdcTransmissionLevel = case_when(
+      cdcTransmissionLevel == 0 ~ "Low",
+      cdcTransmissionLevel == 1 ~ "Moderate",
+      cdcTransmissionLevel == 2 ~ "Substantial",
+      cdcTransmissionLevel == 3 ~ "High",
+      cdcTransmissionLevel == 4 ~ NA_character_,
+      TRUE ~ NA_character_
+    ),
+    date = as.Date(date, format = "%y-%m-%d"),
+    cdcTransmissionLevel = factor(
+      cdcTransmissionLevel,
+      levels = c("Low", "Moderate", "Substantial", "High")
+    )
+  ) %>%
+  left_join(county.NCHS,
+            by = c("fips_code", "state")) %>%
+  na.omit(cdcTransmissionLevel,
+          UR_category)%>%
+  group_by(county, state) %>%
+  mutate(mean_last_7_days = zoo::rollmean(infection_rate, k = 7, fill = NA, align = "right"))
+```
+
+
+## Sample sizes across groups (Unbalanced)
+
+```{r echo = F}
+data %>%
+  group_by(cdcTransmissionLevel) %>%
+  count() %>%
+  rename("Sample Size" = n)
+```
+
+
+
+## One-way ANOVA analysis of means
+
+one-way ANOVA model that is used to test whether there is a significant difference in means between the groups defined by the CDC Transmision Risk level. The null hypothesis is that there is no significant difference in means between the groups, and the alternative hypothesis is that at least one group mean is different from the others.
+
+```{r}
+## Fit anova model
+myfit = aov(mean_last_7_days ~ cdcTransmissionLevel,
+data=data)
+summary(myfit)
+```
+In this case, the p-value is less than 2e-16, which is smaller than the conventional significance level of 0.05. Therefore, we reject the null hypothesis and conclude that there is a significant difference in means between the groups. However, this test does not tell us which group has the highest or lowest mean. We can use post-hoc tests like Tukey's HSD to make pairwise comparisons between groups to determine which groups are significantly different from each other.
+
+## Check Assumptions
+
+```{r }
+plot(myfit) 
+boxCox(myfit)
+```
+## Square Root Transformation 
+
+```{r}
+## Fit anova model
+myfit_sqrt = aov((mean_last_7_days)^.5 ~ cdcTransmissionLevel,
+data=data)
+summary(myfit_sqrt)
+```
+
+## Check Assumptions
+
+```{r cache=TRUE}
+plot(myfit_sqrt) 
+boxCox(myfit_sqrt)
+```
+
+## Tukey's multiple comparison
+
+```{r}
+Tukeyfit <- TukeyHSD(myfit_sqrt, conf.level=.95)
+Tukeyfit
+```
+
+```{r}
+par(mar=c(5, 11, 4, 2)) # Increase the bottom margin
+plot(Tukeyfit, las=1, col="blue", cex.axis=1.2, cex.lab=1.2)
+```
+
+The Tukey test results show that the Low transmission group has the highest mean, followed by the Moderate and Substantial transmission groups, and the High transmission group has the lowest mean. The p-values for all the pairwise comparisons between groups are very small (p < 0.001), indicating that the differences in means are statistically significant.
+
+
+```{r echo = F, eval=FALSE}
+library(multcomp)
+library(lsmeans)
+
+comp1<-lsmeans(myfit_sqrt, pairwise ~ cdcTransmissionLevel, adjust="tukey")
+plot(comp1$contrasts)
+```
+
