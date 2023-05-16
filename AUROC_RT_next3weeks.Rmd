@@ -13,126 +13,23 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r echo = F, message=FALSE, warning = F}
 library(dplyr)
 library(ggplot2)
-library(car)
-library(FSA)
-library(knitr)
-library(kableExtra)
-library(ggpubr)
 library(data.table)
+library(pROC)
+library(caret)
 
-
-# Load CovidActNow Data and NCHS Data
-load("RawData/CovidActNow.rda")
-load("ProcessedData/county.NCHS.RDA")
-
-
-# Clean and Merged Data
-data = covid_data %>%
-  dplyr::select(
-    date,
-    state,
-    county,
-    "fips_code" = fips,
-    # R_t, or the estimated number of infections arising from a typical case
-    "infection_rate" = metrics.infectionRate,
-    #  Enum: 0 1 2 3 4 Community transmission level for region, calculated using the CDC definition.
-    # Possible values:  0: Low - 1: Moderate - 2: Substantial - 3: High - 4: Unknown
-    cdcTransmissionLevel
-  ) %>%
-  dplyr::mutate(
-    cdcTransmissionLevel = case_when(
-      cdcTransmissionLevel == 0 ~ "Low",
-      cdcTransmissionLevel == 1 ~ "Moderate",
-      cdcTransmissionLevel == 2 ~ "Substantial",
-      cdcTransmissionLevel == 3 ~ "High",
-      cdcTransmissionLevel == 4 ~ NA_character_,
-      TRUE ~ NA_character_
-    ),
-    cdcTransmissionLevel = factor(cdcTransmissionLevel,
-                                  levels = c("Low", "Moderate", "Substantial", "High")), 
-    date = as.Date(date, format = "%y-%m-%d"),
-    cdcTransmissionLevel = factor(
-      cdcTransmissionLevel,
-      levels = c("Low", "Moderate", "Substantial", "High")
-    )
-  ) %>%
-  left_join(county.NCHS,
-            by = c("fips_code", "state")) %>%
-  group_by(county, state) %>%
-  mutate(mean_last_7_days = zoo::rollmean(infection_rate, k = 7, fill = NA, align = "right"),
-         Rt3NextWeeks = lead(mean_last_7_days, 21),
-         risk_level = case_when(cdcTransmissionLevel == "Low"  ~ 1,
-                                       cdcTransmissionLevel == "Moderate"  ~ 2,
-                                       cdcTransmissionLevel == "Substantial"  ~ 3,
-                                       cdcTransmissionLevel == "High"  ~ 4),
-           stateFips = paste(state, fips_code, sep = ",")
-         ) %>%
-  filter(!is.na(Rt3NextWeeks))
+load("ProcessedData/compared_counties.RDA")
 ```
 
-
-```{r}
-dates = sort(unique(data$date)[1:1])
-set.seed(467)
-date_index = 1
-for (date_index in 1:2){
-  
-  data_day = dplyr::filter(data, date == dates[date_index])
-  
-  
-  low_counties = dplyr::filter(
-    data_day, cdcTransmissionLevel == "Low"
-    )
-  low_sample = sample(1:length(low_counties), 10, replace=T)
-  low_counties = low_counties[low_sample, ]
-  
-  
-  mod_counties = dplyr::filter(
-    data_day, cdcTransmissionLevel == "Moderate"
-    )
-  mod_sample = sample(1:length(mod_counties), 10, replace=T)
-  mod_counties = mod_counties[mod_sample, ]
-  
-  
-  sub_counties = dplyr::filter(
-    data_day, cdcTransmissionLevel == "Substantial"
-    )
-  sub_sample = sample(1:length(sub_counties), 10, replace=T)
-  sub_counties = sub_counties[sub_sample, ]
-  
-  
-  high_counties = dplyr::filter(
-    data_day, cdcTransmissionLevel == "High"
-    )
-  high_sample = sample(1:length(high_counties), 10, replace=T)
-  high_counties = high_counties[high_sample, ]
-  
-  
-  selected_counties = rbind(
-    low_counties,
-    mod_counties,
-    sub_counties,
-    high_counties
-    )
-
-  compared_counties = data.frame()
-  
-  for(i in 1:nrow(selected_counties)){
-    county = selected_counties[i,]
-    other_counties = selected_counties %>%
-      dplyr::filter(cdcTransmissionLevel ! as.character(county$cdcTransmissionLevel))
-      mutate(target_county = county$stateFips,
-             target_risk = county$risk_level,
-             target_rt = county$Rt3NextWeeks,
-             expected_higher_rt = if_else(risk_level > target_risk, 1, 0),
-             actual_higher_rt = if_else(Rt3NextWeeks > target_rt, 1, 0))
-    compared_counties = rbind(compared_counties, other_counties)
-    
-  }
-  
-}
-
-
+```{r echo = F, eval=F}
+compared_counties = compared_counties %>%
+  mutate(
+    truePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 1, 1, 0),
+    falsePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 0, 1, 0),
+    trueNegative = ifelse(expected_higher_rt == 0 & actual_higher_rt == 0, 1, 0),
+    falseNegative = ifelse(expected_higher_rt == 0 & actual_higher_rt == 1, 1, 0)
+    )%>%
+  na.omit(c(truePositive, falsePositive, trueNegative, falseNegative))
+apply(compared_counties[23:26], 2, sum)  
 ```
 
 
@@ -141,16 +38,12 @@ for (date_index in 1:2){
 ## AUROC
 
 
-The AUROC (Area Under the Receiver Operating Characteristic) is a metric to evaluate the prediction performance.The calculated AUROC value indicates the performance of your prediction model. A value closer to 1 suggests a better prediction ability, while a value close to 0.5 indicates random prediction.
-
-
-
-
+The AUROC (Area Under the Receiver Operating Characteristic) is a metric to evaluate the prediction performance. A value closer to 1 suggests a better prediction ability, while a value close to 0.5 indicates random prediction.
 
 
 
 ## Method
-To compare the expected outcomes with the actual infection rates, we randomly sampled 10 counties from each CDC transmission risk level for each day. We then compared their infection rates with other counties of different risk levels.
+To compare the next 21 days expected infection rates with the actual infection rates , we randomly sampled 10 counties from each CDC transmission risk level for each day. We then compared their infection rates number with other counties of different risk levels in three weeks later.
 
 The expected outcome (0 or 1) was determined based on the following revised criteria:
 
@@ -163,8 +56,73 @@ The expected outcome (0 or 1) was determined based on the following revised crit
 * If a county is categorized as high-risk, we expect its infection rate 3 weeks later to be higher than that of other counties.  
 
 
+```{r echo = F, message=FALSE, warning = F}
+roc(data = compared_counties,
+    predictor = expected_higher_rt,
+    response = actual_higher_rt,
+                       plot=TRUE,
+                       legacy.axes=TRUE,
+                       percent=TRUE,
+                       #xlab="False Positive Percentage",
+                       #ylab="True Positive Percentage",
+                       col="#377eb8",
+                       lwd=4,
+                       print.auc=TRUE,
+                       main="ROC Curves for Evaluate the CDC Transmission Risk Level")
+```
 
 ## Conclusion
-The AUROC value provides an assessment of the prediction model's performance, with higher values indicating better predictive ability. The results summary gives an overview of the data, and the comparison analysis allows us to evaluate the accuracy of the predictions based on the revised criteria.
+
+In this case an AUC of 42.41% indicates that the predictive model has limited power, as the AUC is relatively low. The AUC of 42.41% indicates that the predictive model is not even work as good as a random model. Based on this information, it can be concluded that the CDC Transmission Risk Level performance in predicting the infection rate is not accurate
+
+
+
+## Confusion Matrix
+```{r echo = F, warning = F}
+cm = confusionMatrix(factor(compared_counties$expected_higher_rt),
+                          factor(compared_counties$actual_higher_rt))
+cm
+# Create the confusion matrix
+confusion_matrix <- cm$table
+
+# Convert the confusion matrix to a data frame
+confusion_df <- as.data.frame(confusion_matrix)
+
+
+# Calculate percentage for labels
+confusion_df$Percent <- sprintf("%.1f%%", confusion_df$Freq / sum(confusion_df$Freq) * 100)
+# Plot the confusion matrix using ggplot2
+ggplot(confusion_df, aes(x = Reference, y = Prediction, fill = Freq)) +
+  geom_tile() +
+  #geom_text(aes(label = Count), color = "black") +
+  geom_text(aes(label = Percent), color = "black", size = 3) +
+  scale_fill_gradient(low = "#fff7ec", high = "#ef6548") +
+    scale_x_discrete(limits = rev(levels(confusion_df$Reference)),
+                     position = "top") +  # Reverse x-axis
+
+  labs(title = "Confusion Matrix",
+       x = "Actual",
+       y = "Predicted") +
+  theme_minimal()+
+  guides(fill = FALSE)
+
+
+```
+
+
+
+
+
+* True Positives (TP): In 317117 cases we expected a higher infection rate number in 3 weeks later compared to other counties, and the actual infection rate number was indeed higher in those cases.
+
+* False Positives (FP): In 509605 cases we expected a higher infection rate number in 3 weeks later compared to other counties, but the actual infection rate number was lower in those cases.
+
+* True Negatives (TN): In 155791 cases we expected a lower infection rate number in 3 weeks later compared to other counties, and the actual infection rate number was indeed lower in those cases.
+
+* False Negatives (FN): In 199487 cases we expected a lower infection rate number in 3 weeks later compared to other counties, but the actual infection rate number was higher in those cases.
+
+**Accuracy**: The overall accuracy of the model is 0.4001, which means the model correctly identified 40.01% of the cases.
+
+
 
 
