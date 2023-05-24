@@ -84,8 +84,6 @@ for (date_index in 1:49){
   selected_counties = dplyr::filter(data,
                                     date == dates[date_index])
   
-  selected_counties = selected_counties
-  table(selected_counties$)
     
     
     
