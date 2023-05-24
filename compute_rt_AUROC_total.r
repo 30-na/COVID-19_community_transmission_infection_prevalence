@@ -79,16 +79,16 @@ columnNames = c("date",
 compared_counties = data.frame(matrix(nrow = 0,
                                       ncol=length(columnNames)))
 
-for (date_index in 1:49){
-  
+# for (date_index in 1:49){
+date_index = 100
   selected_counties = dplyr::filter(data,
                                     date == dates[date_index])
   
     
     
     
-#  for(i in 1:nrow(selected_counties)){
-    for(i in 1:2){    
+ for(i in 1:nrow(selected_counties)){
+     
     county = selected_counties[i,]
     target_county = county$stateFips
     target_risk = county$risk_level
@@ -111,7 +111,7 @@ save(compared_counties,
                  date_index,
                  target_county,
                  ".RDA"))
-}
+#}
 
 
 
