@@ -15,8 +15,6 @@ data = covid_data %>%
     "fips_code" = fips,
     # R_t, or the estimated number of infections arising from a typical case
     "infection_rate" = metrics.infectionRate,
-    #  Enum: 0 1 2 3 4 Community transmission level for region, calculated using the CDC definition.
-    # Possible values:  0: Low - 1: Moderate - 2: Substantial - 3: High - 4: Unknown
     cdcTransmissionLevel
   ) %>%
   dplyr::mutate(
