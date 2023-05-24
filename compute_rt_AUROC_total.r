@@ -79,7 +79,7 @@ columnNames = c("date",
 compared_counties = data.frame(matrix(nrow = 0,
                                       ncol=length(columnNames)))
 
-for (date_index in 1:99){
+for (date_index in 1:49){
   
   selected_counties = dplyr::filter(data,
                                     date == dates[date_index])
