@@ -84,9 +84,13 @@ for (date_index in 1:49){
   selected_counties = dplyr::filter(data,
                                     date == dates[date_index])
   
-  
-  for(i in 1:nrow(selected_counties)){
+  selected_counties = selected_counties
+  table(selected_counties$)
     
+    
+    
+#  for(i in 1:nrow(selected_counties)){
+    for(i in 1:2){    
     county = selected_counties[i,]
     target_county = county$stateFips
     target_risk = county$risk_level
