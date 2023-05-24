@@ -85,7 +85,7 @@ date_index = 100
     
     
     
- for(i in 1:nrow(selected_counties)){
+ for(i in 1:2){
      
     county = selected_counties[i,]
     target_county = county$stateFips
