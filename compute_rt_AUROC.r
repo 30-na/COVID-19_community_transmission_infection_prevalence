@@ -1,4 +1,4 @@
-library(dplyr)
+power library(dplyr)
 library(data.table)
 
 
@@ -80,7 +80,7 @@ columnNames = c("date",
 compared_counties = data.frame(matrix(nrow = 0,
                                       ncol=length(columnNames)))
 
-for (date_index in 1:length(dates)){
+for (date_index in 1:20){
   
   data_day = dplyr::filter(data,
                            date == dates[date_index],
