@@ -1,5 +1,6 @@
 library(dplyr)
 library(data.table)
+library(zoo)
 # Load CovidActNow Data and NCHS Data
 load("RawData/CovidActNow.rda")
 load("ProcessedData/county.NCHS.RDA")
@@ -38,7 +39,7 @@ data = covid_data %>%
   left_join(county.NCHS,
             by = c("fips_code", "state")) %>%
   group_by(county, state) %>%
-  mutate(mean_last_7_days = rollmean(infection_rate, k = 7, fill = NA, align = "right"),
+  mutate(mean_last_7_days = zoo:rollmean(infection_rate, k = 7, fill = NA, align = "right"),
          Rt3NextWeeks = lead(mean_last_7_days, 21),
          risk_level = case_when(cdcTransmissionLevel == "Low"  ~ 1,
                                 cdcTransmissionLevel == "Moderate"  ~ 2,
