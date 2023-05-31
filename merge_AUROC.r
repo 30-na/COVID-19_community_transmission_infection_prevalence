@@ -1,6 +1,3 @@
-
-
-
 folder_path <- "ProcessedData/outputsample"
 
 # get a list of all the RDA files in the folder
@@ -32,6 +29,9 @@ columnNames = c("date",
 
 merged_counties = data.frame(matrix(nrow = 0,
                                       ncol=length(columnNames)))
+colnames(merged_counties) = columnNames
+
+
 
 # loop through each file, load the data, and merge it with the existing data
 for (file in file_list) {
@@ -40,6 +40,7 @@ for (file in file_list) {
   print(file)
   merged_counties <- rbind(merged_counties,
                            compared_counties)
+  rm(compared_counties)
 }
 
 
