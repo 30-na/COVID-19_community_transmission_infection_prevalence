@@ -50,7 +50,9 @@ data = covid_data %>%
          stateFips = paste(state, fips_code, sep = ",")
   ) %>%
   filter(!is.na(Rt3NextWeeks),
-         !is.na(risk_level))
+         !is.na(risk_level),
+         !is.na(UR_category)
+         )
 
 
 
@@ -81,10 +83,55 @@ columnNames = c("date",
 compared_counties = data.frame(matrix(nrow = 0,
                                       ncol=length(columnNames)))
 
-for (date_index in 78:length(dates)){
+
+
+# define a sample function 
+
+sampleCounties = function(data_day, URcode){
   
-  selected_counties = dplyr::filter(data,
-                                    date == dates[date_index])
+  counties = dplyr::filter(
+    data_day,
+    UR_code == URcode
+  )
+  
+  n = nrow(counties)
+  
+  if (n <= 20){
+    sample = counties
+  }else{
+    sampleIndex = sample(1:n, 
+                    ceiling(0.2 * n),
+                    replace = F)
+    sample = counties[sampleIndex, ]
+  }
+  return(sample)
+}
+
+
+for (date_index in 1:length(dates)){
+  
+  # all counties in "date_index" specific day
+  data_day = dplyr::filter(data,
+                           date == dates[date_index])
+  
+  set.seed(924)
+  counties01 = sampleCounties(data_day, URcode=1)
+  counties02 = sampleCounties(data_day, URcode=2)
+  counties03 = sampleCounties(data_day, URcode=3)
+  counties04 = sampleCounties(data_day, URcode=4)
+  counties05 = sampleCounties(data_day, URcode=5)
+  counties06 = sampleCounties(data_day, URcode=6)
+  
+  selected_counties = rbind(
+    counties01,
+    counties02,
+    counties03,
+    counties04,
+    counties05,
+    counties06
+  ) %>%
+    as.data.frame
+  
   
   
   for(i in 1:nrow(selected_counties)){
