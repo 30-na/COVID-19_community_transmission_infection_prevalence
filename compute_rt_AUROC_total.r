@@ -80,9 +80,6 @@ columnNames = c("date",
                 "expected_higher_rt",
                 "actual_higher_rt")
 
-compared_counties = data.frame(matrix(nrow = 0,
-                                      ncol=length(columnNames)))
-
 
 
 # define a sample function 
@@ -109,6 +106,11 @@ sampleCounties = function(data_day, URcode){
 
 
 for (date_index in 1:length(dates)){
+  
+  
+  # define and empty dataframe
+  compared_counties = data.frame(matrix(nrow = 0,
+                                        ncol=length(columnNames)))
   
   # all counties in "date_index" specific day
   data_day = dplyr::filter(data,
@@ -144,19 +146,22 @@ for (date_index in 1:length(dates)){
     
     other_counties = selected_counties %>%
       dplyr::filter(risk_level != target_risk)  %>%
-      dplyr::mutate(target_county = target_county,
-             target_risk = target_risk,
-             target_rt = target_rt,
-             expected_higher_rt = if_else(risk_level > target_risk, 1, 0),
-             actual_higher_rt = if_else(Rt3NextWeeks > target_rt, 1, 0))
+      dplyr::mutate(
+        target_county = target_county,
+        target_risk = target_risk,
+        target_rt = target_rt,
+        expected_higher_rt = if_else(risk_level > target_risk, 1, 0),
+        actual_higher_rt = if_else(Rt3NextWeeks > target_rt, 1, 0)
+        )
     
     compared_counties = rbind(compared_counties, other_counties)
     
   }
+  
+  
 save(compared_counties, 
-     file=paste0("ProcessedData/comparedCounties/",
+     file=paste0("ProcessedData/outputsample/",
                  date_index,
-                 target_county,
                  ".RDA"))
 }
 
