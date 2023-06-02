@@ -32,15 +32,13 @@ merged_counties = data.frame(matrix(nrow = 0,
 colnames(merged_counties) = columnNames
 
 
-
 # loop through each file, load the data, and merge it with the existing data
-for (file in file_list) {
+for (file in file_list[1:1000]) {
   load(file.path(folder_path, file))
   # merge the new data with the existing data
   print(file)
   merged_counties <- rbind(merged_counties,
                            compared_counties)
-  rm(compared_counties)
 }
 
 
