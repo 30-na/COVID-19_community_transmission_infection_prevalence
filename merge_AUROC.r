@@ -27,19 +27,42 @@ columnNames = c("date",
                 "expected_higher_rt",
                 "actual_higher_rt")
 
-merged_counties = data.frame(matrix(nrow = 0,
+merged_counties1 = data.frame(matrix(nrow = 0,
                                       ncol=length(columnNames)))
-colnames(merged_counties) = columnNames
 
+merged_counties2 = data.frame(matrix(nrow = 0,
+                                     ncol=length(columnNames)))
+
+colnames(merged_counties1) = columnNames
+colnames(merged_counties2) = columnNames
 
 # loop through each file, load the data, and merge it with the existing data
 for (file in file_list[1:1000]) {
   load(file.path(folder_path, file))
   # merge the new data with the existing data
   print(file)
-  merged_counties <- rbind(merged_counties,
+  merged_counties1 <- rbind(merged_counties1,
                            compared_counties)
 }
+
+save(merged_counties1
+     ,file = "ProcessedData/AUROC_merged1.RDA")
+
+
+for (file in file_list[1000:1166]) {
+  load(file.path(folder_path, file))
+  # merge the new data with the existing data
+  print(file)
+  merged_counties2 <- rbind(merged_counties2,
+                           compared_counties)
+}
+
+save(merged_counties2
+     ,file = "ProcessedData/AUROC_merged2.RDA")
+
+
+merged_counties = rbind(merged_counties1,
+      merged_counties2)
 
 
 save(merged_counties
