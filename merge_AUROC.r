@@ -49,7 +49,7 @@ save(merged_counties1
      ,file = "ProcessedData/AUROC_merged1.RDA")
 
 
-for (file in file_list[1000:1166]) {
+for (file in file_list[1001:1166]) {
   load(file.path(folder_path, file))
   # merge the new data with the existing data
   print(file)
