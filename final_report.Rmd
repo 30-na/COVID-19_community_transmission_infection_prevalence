@@ -1,0 +1,318 @@
+---
+title: "Investigating the infection rates in counties categorized under the CDC community transmission levels"
+author: "Sina Mokhtar"
+output: pdf_document
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+------------------------------------
+
+In September 2020, the Centers for Disease Control and Prevention (CDC) introduced a framework for monitoring COVID-19 community transmission levels based on four categories: high, substantial, moderate, and low. This framework aimed to reduce the risk of severe illness and healthcare strain by using two key metrics: the total number of new cases per 100,000 persons in the past 7 days and the percentage of positive Nucleic Acid Amplification Test results during the same period. These community transmission levels have been instrumental in guiding setting-specific guidance and layered prevention strategies, such as screening testing in schools and implementing masking policies.
+
+
+This study focuses on investigating the infection rates in counties categorized under the four different CDC COVID-19 community transmission levels. Additionally, we compare the infection rates of the counties with different risk level three weeks later to evaluate the effectiveness of the community transmission risk level classification in predicting future infection trends.
+
+
+## METHODS
+
+-------------------------------------
+
+### Data Sources
+
+The data for this study was obtained from the following sources
+
+1- [Covid Act Now API](https://covidactnow.org/data-api): This API provides comprehensive COVID-19 data, including metrics related to transmission risk and infection rates.
+
+2- CDC, National Center for Health Statistics [NCHS](https://www.cdc.gov/nchs/data_access/urban_rural.htm) This classification system categorizes counties based on their urban or rural characteristics, providing important contextual information for analyzing COVID-19 transmission patterns.
+
+
+
+### Statistical Analysis
+
+
+```{r echo = F, message=FALSE, warning = F}
+library(dplyr)
+library(ggplot2)
+library(car)
+library(FSA)
+library(knitr)
+library(kableExtra)
+library(ggpubr)
+library(emmeans)
+
+# Load CovidActNow Data and NCHS Data
+load("RawData/CovidActNow.rda")
+load("ProcessedData/county.NCHS.RDA")
+
+
+# Clean and Merged Data
+data = covid_data %>%
+  dplyr::select(
+    date,
+    state,
+    county,
+    "fips_code" = fips,
+    # R_t, or the estimated number of infections arising from a typical case
+    "infection_rate" = metrics.infectionRate,
+    #  Enum: 0 1 2 3 4 Community transmission level for region, calculated using the CDC definition.
+    # Possible values:  0: Low - 1: Moderate - 2: Substantial - 3: High - 4: Unknown
+    cdcTransmissionLevel
+  ) %>%
+  dplyr::mutate(
+    cdcTransmissionLevel = case_when(
+      cdcTransmissionLevel == 0 ~ "Low",
+      cdcTransmissionLevel == 1 ~ "Moderate",
+      cdcTransmissionLevel == 2 ~ "Substantial",
+      cdcTransmissionLevel == 3 ~ "High",
+      cdcTransmissionLevel == 4 ~ NA_character_,
+      TRUE ~ NA_character_
+    ),
+    cdcTransmissionLevel = factor(cdcTransmissionLevel,
+                                  levels = c("Low", "Moderate", "Substantial", "High")), 
+    date = as.Date(date, format = "%y-%m-%d"),
+    cdcTransmissionLevel = factor(
+      cdcTransmissionLevel,
+      levels = c("Low", "Moderate", "Substantial", "High")
+    )
+  ) %>%
+  left_join(county.NCHS,
+            by = c("fips_code", "state")) %>%
+  group_by(county, state) %>%
+  mutate(mean_last_7_days = ifelse(is.na(infection_rate),
+                                   NA,
+                                   zoo::rollmean(infection_rate, k = 7, fill = NA, align = "right")),
+         Rt3NextWeeks = lead(mean_last_7_days, 21),
+         risk_level = case_when(cdcTransmissionLevel == "Low"  ~ 1,
+                                cdcTransmissionLevel == "Moderate"  ~ 2,
+                                cdcTransmissionLevel == "Substantial"  ~ 3,
+                                cdcTransmissionLevel == "High"  ~ 4),
+         stateFips = paste(state, fips_code, sep = ",")
+  ) %>%
+  filter(!is.na(Rt3NextWeeks),
+         !is.na(risk_level),
+         !is.na(UR_category)
+         )
+
+```
+
+
+
+These statistics provide an overview of the infection rate values for different risk levels, both in the present and 3 weeks later. They give insights into the mean and median infection rates within each CDC Transmission risk level.
+
+```{r echo = F, warning=F, out.width="50%", out.height="50%"}
+sampleSize = data %>%
+  group_by(cdcTransmissionLevel) %>%
+  count() %>%
+  rename("Counties" = n)
+
+table_data <- data %>% 
+  group_by(cdcTransmissionLevel)%>%
+  summarize(
+            Rtmean = mean(mean_last_7_days, na.rm = T),
+            Rtmedian = median(mean_last_7_days, na.rm = T),
+            RtVariance= var(mean_last_7_days, na.rm = T),
+            Rtmean3NextWeeks = mean(Rt3NextWeeks, na.rm = T),
+            Rtmedian3NextWeeks = median(Rt3NextWeeks, na.rm = T),
+            RtVariance3NextWeeks= var(Rt3NextWeeks, na.rm = T)
+            ) %>%
+  left_join(sampleSize, by = "cdcTransmissionLevel")%>%
+  arrange(cdcTransmissionLevel) %>%
+  select(
+    "Risk Level" = cdcTransmissionLevel,
+    "Counties" = Counties,
+    "Mean Rt" = Rtmean,
+    "Mean Rt (3 Weeks)" = Rtmean3NextWeeks,
+    "Median Rt" = Rtmedian,
+    "Median Rt (3 Weeks)" = Rtmedian3NextWeeks
+    )
+
+kable(table_data,
+      caption = "Summary statistics by CDC transmission level",
+      align = "l")%>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+```
+
+
+
+To determine if there is a significant difference in the distribution of infection rate numbers among counties with different CDC Transmission Risk levels, we used two statistical tests: ANOVA (Analysis of Variance) and Kruskal-Wallis test.  
+
+
+One-way **ANOVA** model that is used to test whether there is a significant difference in means between the groups defined by the CDC Transmission Risk level. The null hypothesis is that there is no significant difference in means between the groups, and the alternative hypothesis is that at least one group mean is different from the others.
+
+
+```{r echo = F, warning =F}
+## Fit anova model
+myfit = aov(mean_last_7_days ~ cdcTransmissionLevel,
+data=data)
+anova(myfit)
+```
+
+
+
+```{r echo = F, warning =F}
+# Create a boxplot with separate colors for each CDC transmission level
+ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)", 
+       title = "Distribution of Rt by CDC transmission level") +
+  theme_bw()+
+  stat_compare_means(method = "anova")+
+  ylim(c(0,3.3))
+```
+
+In this case, the p-value is 2e-16, which is smaller than the conventional significance level of 0.05. Therefore, we reject the null hypothesis and conclude that there is a significant difference in means between the groups. To further analyze the specific group differences, we calculate the estimated marginal means, allowing us to identify significant differences among the groups and gain insights into the average response across different groups.
+
+```{r echo = F, warning =F}
+# Contrasts to perform pairwise comparisons
+cont <-
+  emmeans::emmeans(
+    myfit
+  , specs = "cdcTransmissionLevel"
+  )
+
+plot(cont, comparisons = F)+
+  theme_bw()+
+  labs(title = "Rt estimated marginal means for each CDC risk level")
+cont
+#cont %>% pairs()
+#Tukeyfit <- TukeyHSD(myfit, conf.level=.95)
+#Tukeyfit
+```
+
+
+The results show that the Low transmission group has the highest mean, followed by the Moderate and High transmission groups, and the Substantial transmission group has the lowest mean. The p-values for all the groups are very small (p < 0.001), indicating that the differences in means are statistically significant.
+
+
+```{r echo = F, warning =F}
+## Fit anova model
+myfit3weeks = aov(Rt3NextWeeks ~ cdcTransmissionLevel,
+data=data)
+
+# Contrasts to perform pairwise comparisons
+cont3weeks <-
+  emmeans::emmeans(
+    myfit3weeks
+  , specs = "cdcTransmissionLevel"
+  )
+
+plot(cont3weeks, comparisons = F)+
+  theme_bw()+
+  labs(title = "Rt estimated marginal means for each CDC risk level 3 weeks later")
+cont3weeks
+```
+
+\newpage
+
+The **Kruskal-Wallis** test is a nonparametric statistical test used to determine whether three or more independent groups have different medians. It is an alternative to the one-way ANOVA test, which assumes that the data are normally distributed and have equal variances. Since in our case these assumptions are not met the Kruskal-Wallis test is more appropriate. 
+
+```{r echo = F}
+kruskal.test(Rt3NextWeeks ~ cdcTransmissionLevel,
+data=data)
+
+```
+
+```{r echo = F, warning =F}
+# Create a boxplot with separate colors for each CDC transmission level
+plot1 = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)" 
+       ,title = "Distribution of Rt by CDC transmission level"
+       ) +
+  theme_bw()+
+  stat_compare_means()+
+  ylim(c(0,3.3))
+
+plot2 = ggplot(data, aes(x = cdcTransmissionLevel, y = Rt3NextWeeks, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)" 
+       ,title = "Distribution of Rt by CDC transmission level at 21 days later"
+       ) +
+  theme_bw()+
+  stat_compare_means()+
+  ylim(c(0,3.3))
+
+plot1
+plot2
+```
+
+The output of the test suggests that the p-value is less than the significance level of 0.05, indicating strong evidence against the null hypothesis that there are no differences between the groups. Therefore, we can conclude that there is a significant difference in the distribution of the Rt number across the four levels of CDC Transmission risk level both at the same day and 21 days later.
+
+Then we applied the Kruskal-Wallis same test in each NCHS category to see if there is significant difference in the distribution of the Rt number across CDC Transmission risk level groups both at the same day and 21 days later.
+
+
+```{r echo = F, warning=F,  results = "asis",, fig.width=10,fig.height=12}
+ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)" 
+       ,title = "Distribution of Rt by CDC transmission level"
+       ) +
+  theme_bw()+
+  ylim(c(0,3.8))+
+  stat_compare_means()+
+   stat_compare_means(
+     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
+                      method="wilcox.test"
+     )+
+  facet_wrap(. ~ UR_category,
+             ncol=2)
+```
+
+```{r echo = F, warning=F,  results = "asis",, fig.width=10,fig.height=12}
+ggplot(data, aes(x = cdcTransmissionLevel, y = Rt3NextWeeks, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)" 
+       ,title = "Distribution of Rt by CDC transmission level at 21 days later"
+       ) +
+  theme_bw()+
+  ylim(c(0,3.8))+
+  stat_compare_means()+
+   stat_compare_means(
+     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
+                      method="wilcox.test"
+     )+
+  facet_wrap(. ~ UR_category,
+             ncol=2)
+```
+
+
+The **AUROC** (Area Under the Receiver Operating Characteristic) is a metric to evaluate the prediction performance. A value closer to 1 suggests a better prediction ability, while a value close to 0.5 indicates random prediction.
+
+To compare the next 21 days expected infection rates with the actual infection rates , we randomly sampled atleast %20 of counties from each UR category risk level for each day. We then compared their infection rates number with other counties of different risk levels in three weeks later.
+
+The expected outcome (0 or 1) was determined based on the following revised criteria:
+
+* If a county is categorized as low-risk, we expect its infection rate 3 weeks later to be lower than the other counties.
+
+* If a county is categorized as medium-risk, we expect its infection rate 3 weeks later to be higher than low-risk counties and lower than substantial and high-risk counties.
+
+* If a county is categorized as substantial-risk, we expect its infection rate 3 weeks later to be lower than high-risk counties and higher than low and medium-risk counties.
+
+* If a county is categorized as high-risk, we expect its infection rate 3 weeks later to be higher than the other counties.  
+
+
+```{r echo = F, message=FALSE, warning = F}
+library(pROC)
+library(caret)
+library(mltools)
+load("ProcessedData/AUROC_merged.RDA")
+```
+
+## RESULTS
+
+## DISCUSSION
+
+## Supplementary Data
+
+## References
+
