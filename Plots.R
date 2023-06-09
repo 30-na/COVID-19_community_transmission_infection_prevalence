@@ -313,7 +313,7 @@ UR5 = filter(county_list, UR_code == 5)$fips_state
 UR6 = filter(county_list, UR_code == 6)$fips_state
 
 
-
+print("step1")
 
 merged_counties = merged_counties %>%
   mutate(
@@ -334,6 +334,7 @@ merged_counties = merged_counties %>%
     )
   )
 
+print("step2")
 apply(merged_counties[23:26], 2, sum) 
 county1 = filter(merged_counties, UR_code == 1 & target_UR == 1)
 county2 = filter(merged_counties, UR_code == 2 & target_UR == 2)
@@ -356,6 +357,8 @@ auroc <- performance(pred_obj, "auc")@y.values[[1]]
 roc_data <- data.frame(fpr = unlist(perf_obj@x.values),
                        tpr = unlist(perf_obj@y.values))
 
+
+print("step3")
 # Create the ROC curve plot with AUROC
 gRoc <- ggplot(data = roc_data, aes(x = fpr, y = tpr)) +
   geom_path(color = "#377eb8", size = 1) +
@@ -376,7 +379,7 @@ ggsave("Fig/gRoc.jpg",
        width=8,
        scale=1.8)
 
-
+print("step4")
 # AUC facet ####
 # Create the prediction object 
 pred_obj1 <- prediction(county1$expected_higher_rt,
