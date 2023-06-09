@@ -17,7 +17,7 @@ load("ProcessedData/AUROC_merged.RDA")
 
 
 
-
+print("step00")
 # AUC ####
 county_list = county.NCHS %>%
   select(state,
