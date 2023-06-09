@@ -3,6 +3,7 @@
 library(dplyr)
 library(ggplot2)
 library(FSA)
+library(car)
 library(knitr)
 library(kableExtra)
 library(ggpubr)
@@ -268,7 +269,7 @@ table_data <- data %>%
 
 UR_category_list = unique(sampleSize$UR_category)
 
-kbl(table_data,
+kbl_result <- kbl(table_data,
     caption = "Summary statistics by CDC transmission level",
     booktabs = T) %>%
   kableExtra::kable_styling(latex_options = "hold_position") %>%
