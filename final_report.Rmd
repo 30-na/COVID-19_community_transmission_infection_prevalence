@@ -27,7 +27,7 @@ This study focuses on investigating the infection rates in counties categorized 
 
 The data for this study was obtained from the following sources
 
-1- [Covid Act Now API](https://covidactnow.org/data-api): This API provides comprehensive COVID-19 data, including metrics related to transmission risk and infection rates.By utilizing data from January 2020 to March 2023, we were able to cover a substantial timeframe that includes the early stages of the pandemic up until recent months.  
+1- [Covid Act Now API](https://covidactnow.org/data-api): This API provides comprehensive COVID-19 data, including metrics related to transmission risk and infection rates from January 2020 to March 2023. The infection rate (Rt) represents the estimated number of new people that each COVID-positive person will infect.
 
 2- CDC, National Center for Health Statistics [NCHS](https://www.cdc.gov/nchs/data_access/urban_rural.htm) This classification system categorizes counties based on their urban or rural characteristics, providing important contextual information for analyzing COVID-19 transmission patterns.
 
