@@ -1,0 +1,159 @@
+---
+title: "The Infection Rate Prediction Based on CDC Transmistion Risk Level"
+author: "Sina Mokhtar"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r echo = F, message=FALSE, warning = F}
+library(dplyr)
+library(ggplot2)
+library(data.table)
+library(pROC)
+library(caret)
+library(mltools)
+load("ProcessedData/AUROC_merged.RDA")
+```
+
+```{r echo = F, eval=F}
+merged_counties = merged_counties %>%
+  mutate(
+    truePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 1, 1, 0),
+    falsePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 0, 1, 0),
+    trueNegative = ifelse(expected_higher_rt == 0 & actual_higher_rt == 0, 1, 0),
+    falseNegative = ifelse(expected_higher_rt == 0 & actual_higher_rt == 1, 1, 0)
+    )%>%
+  na.omit(c(truePositive, falsePositive, trueNegative, falseNegative))
+apply(merged_counties[23:26], 2, sum)  
+```
+
+
+
+
+## AUROC
+
+The AUROC (Area Under the Receiver Operating Characteristic) is a metric to evaluate the prediction performance. A value closer to 1 suggests a better prediction ability, while a value close to 0.5 indicates random prediction.
+
+
+
+## Method
+To compare the next 21 days expected infection rates with the actual infection rates , we randomly sampled atleast %20 of counties from each UR category risk level for each day. We then compared their infection rates number with other counties of different risk levels in three weeks later.
+
+The expected outcome (0 or 1) was determined based on the following revised criteria:
+
+* If a county is categorized as low-risk, we expect its infection rate 3 weeks later to be lower than that of other counties.
+
+* If a county is categorized as medium-risk, we expect its infection rate 3 weeks later to be higher than low-risk counties and lower than substantial and high-risk counties.
+
+* If a county is categorized as substantial-risk, we expect its infection rate 3 weeks later to be lower than high-risk counties and higher than low and medium-risk counties.
+
+* If a county is categorized as high-risk, we expect its infection rate 3 weeks later to be higher than that of other counties.  
+
+
+```{r echo = F, message=FALSE, warning = F}
+roc(data = merged_counties,
+    predictor = expected_higher_rt,
+    response = actual_higher_rt,
+    
+    
+                       plot=TRUE,
+                       legacy.axes=TRUE,
+                       percent=TRUE,
+                       #xlab="False Positive Percentage",
+                       #ylab="True Positive Percentage",
+                       col="#377eb8",
+                       lwd=4,
+                       print.auc=TRUE,
+                       main="ROC Curves for Evaluate the CDC Transmission Risk Level")
+
+auc_roc(merged_counties$expected_higher_rt,
+        merged_counties$actual_higher_rt, 
+        returnDT=F)
+```
+
+
+
+```{r echo = F, warning = F}
+
+confusion_matrix = function(URcategory){
+  
+counties = filter(merged_counties, 
+                          UR_category == URcategory)
+
+cm = confusionMatrix(factor(counties$expected_higher_rt),
+                          factor(counties$actual_higher_rt))
+
+# Create the confusion matrix
+confusion_matrix <- cm$table
+
+# Convert the confusion matrix to a data frame
+confusion_df <- as.data.frame(confusion_matrix)
+
+
+# Calculate percentage for labels
+confusion_df$Percent <- sprintf("%.1f%%", confusion_df$Freq / sum(confusion_df$Freq) * 100)
+# Plot the confusion matrix using ggplot2
+ggplot(confusion_df, aes(x = Reference, y = Prediction, fill = Freq)) +
+  geom_tile() +
+  #geom_text(aes(label = Count), color = "black") +
+  geom_text(aes(label = Percent), color = "black", size = 3) +
+  scale_fill_gradient(low = "#fff7ec", high = "#ef6548") +
+    scale_x_discrete(limits = rev(levels(confusion_df$Reference)),
+                     position = "top") +  # Reverse x-axis
+
+  labs(title = paste0("Confusion Matrix for Large ", URcategory, " counties") ,
+       x = "Actual",
+       y = "Predicted") +
+  theme_minimal()+
+  guides(fill = FALSE)
+cm$table[3]
+
+
+}
+
+```
+
+## Confusion Matrix for Large central metro
+
+```{r echo = F, warning = F}
+confusion_matrix("Large central metro")
+```
+
+
+## Confusion Matrix for Large fringe metro
+
+```{r echo = F, warning = F}
+confusion_matrix("Large fringe metro")
+```
+
+
+## Confusion Matrix for Medium metro
+
+```{r echo = F, warning = F}
+confusion_matrix("Medium metro")
+```
+
+## Confusion Matrix for Small metro
+
+```{r echo = F, warning = F}
+confusion_matrix("Small metro")
+```
+
+## Confusion Matrix for Micropolitan
+
+```{r echo = F, warning = F}
+confusion_matrix("Micropolitan")
+```
+
+## Confusion Matrix for Noncore
+
+```{r echo = F, warning = F}
+confusion_matrix("Noncore")
+```
+
+
