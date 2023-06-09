@@ -335,7 +335,7 @@ merged_counties = merged_counties %>%
   )
 
 print("step2")
-apply(merged_counties[23:26], 2, sum) 
+
 county1 = filter(merged_counties, UR_code == 1 & target_UR == 1)
 county2 = filter(merged_counties, UR_code == 2 & target_UR == 2)
 county3 = filter(merged_counties, UR_code == 3 & target_UR == 3)
