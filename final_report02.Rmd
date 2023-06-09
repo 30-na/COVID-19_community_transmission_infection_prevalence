@@ -1,0 +1,362 @@
+---
+title: "Investigating the infection rates in counties categorized under the CDC community transmission levels"
+author: "Sina Mokhtar"
+output: pdf_document
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+The **AUROC** (Area Under the Receiver Operating Characteristic) is a metric to evaluate the prediction performance. A value closer to 1 suggests a better prediction ability, while a value close to 0.5 indicates random prediction.
+
+To compare the next 21 days expected infection rates with the actual infection rates , we randomly sampled atleast %20 of counties from each UR category risk level for each day. We then compared their infection rates number with other counties of different risk levels in three weeks later.
+
+The expected outcome (0 or 1) was determined based on the following revised criteria:
+
+* If a county is categorized as low-risk, we expect its infection rate 3 weeks later to be lower than the other counties.
+
+* If a county is categorized as medium-risk, we expect its infection rate 3 weeks later to be higher than low-risk counties and lower than substantial and high-risk counties.
+
+* If a county is categorized as substantial-risk, we expect its infection rate 3 weeks later to be lower than high-risk counties and higher than low and medium-risk counties.
+
+* If a county is categorized as high-risk, we expect its infection rate 3 weeks later to be higher than the other counties.  
+
+
+```{r echo = F, message=FALSE, warning = F}
+library(pROC)
+library(caret)
+library(ggplot2)
+library(dplyr)
+library(ROCR)
+
+load("ProcessedData/AUROC_merged2.RDA")
+merged_counties = merged_counties2 %>%
+  mutate(
+    truePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 1, 1, 0),
+    falsePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 0, 1, 0),
+    trueNegative = ifelse(expected_higher_rt == 0 & actual_higher_rt == 0, 1, 0),
+    falseNegative = ifelse(expected_higher_rt == 0 & actual_higher_rt == 1, 1, 0)
+    )%>%
+  na.omit(c(truePositive, falsePositive, trueNegative, falseNegative))
+apply(merged_counties[23:26], 2, sum)
+
+
+county1 = filter(merged_counties, UR_code == 1)
+county2 = filter(merged_counties, UR_code == 2)
+county3 = filter(merged_counties, UR_code == 3)
+county4 = filter(merged_counties, UR_code == 4)
+county5 = filter(merged_counties, UR_code == 5)
+county6 = filter(merged_counties, UR_code == 6)
+```
+
+
+
+```{r echo = F, warning=F}
+# Create the prediction object
+pred_obj <- prediction(merged_counties$expected_higher_rt,
+                       merged_counties$actual_higher_rt)
+
+# Create the performance object
+perf_obj <- performance(pred_obj, "tpr", "fpr")
+
+# Calculate the AUROC
+auroc <- performance(pred_obj, "auc")@y.values[[1]]
+
+# Create the ROC curve data frame
+roc_data <- data.frame(fpr = unlist(perf_obj@x.values),
+                       tpr = unlist(perf_obj@y.values))
+
+# Create the ROC curve plot with AUROC
+roc_plot <- ggplot(data = roc_data, aes(x = fpr, y = tpr)) +
+  geom_path(color = "#377eb8", size = 1) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  labs(
+    x = "False Positive Rate", y = "True Positive Rate",
+       title = "ROC Curve for Evaluating CDC Transmission Risk Level",
+       subtitle = paste("AUROC:", round(auroc, 2))) +
+  theme_bw() +
+  annotate("text", x = 0.8,
+           y = 0.2,
+           label = paste("AUROC =", round(auroc, 2)), size = 4)
+
+# Print the ROC curve plot
+print(roc_plot)
+
+
+```
+In this case an AUC of 29% indicates that the predictive model has limited power, as the AUC is relatively low. The AUC of 29% indicates that the predictive model is not even work as good as a random model. Based on this information, it can be concluded that the CDC Transmission Risk Level performance in predicting the infection rate is not accurate
+
+Then we calculated the AUROC in each NCHS category.
+
+
+
+```{r echo = F, warning=F,  results = "asis", fig.width=10, fig.height=12}
+# Create the prediction object
+pred_obj1 <- prediction(county1$expected_higher_rt,
+                       county1$actual_higher_rt)
+
+pred_obj2 <- prediction(county2$expected_higher_rt,
+                       county2$actual_higher_rt)
+
+pred_obj3 <- prediction(county3$expected_higher_rt,
+                       county3$actual_higher_rt)
+
+pred_obj4 <- prediction(county4$expected_higher_rt,
+                       county4$actual_higher_rt)
+
+pred_obj5 <- prediction(county5$expected_higher_rt,
+                       county5$actual_higher_rt)
+
+pred_obj6 <- prediction(county6$expected_higher_rt,
+                       county6$actual_higher_rt)
+
+
+
+# Create the performance object
+perf_obj1 <- performance(pred_obj1, "tpr", "fpr")
+perf_obj2 <- performance(pred_obj2, "tpr", "fpr")
+perf_obj3 <- performance(pred_obj3, "tpr", "fpr")
+perf_obj4 <- performance(pred_obj4, "tpr", "fpr")
+perf_obj5 <- performance(pred_obj5, "tpr", "fpr")
+perf_obj6 <- performance(pred_obj6, "tpr", "fpr")
+
+
+# Calculate the AUROC
+auroc1 <- performance(pred_obj1, "auc")@y.values[[1]]
+auroc2 <- performance(pred_obj2, "auc")@y.values[[1]]
+auroc3 <- performance(pred_obj3, "auc")@y.values[[1]]
+auroc4 <- performance(pred_obj4, "auc")@y.values[[1]]
+auroc5 <- performance(pred_obj5, "auc")@y.values[[1]]
+auroc6 <- performance(pred_obj6, "auc")@y.values[[1]]
+
+
+
+# Create the ROC curve data frame
+roc_data1 <- data.frame(fpr = unlist(perf_obj1@x.values),
+                       tpr = unlist(perf_obj1@y.values))%>%
+  mutate(
+    UR_Category = "Large central metro",
+    auroc = auroc1
+  )
+
+roc_data2 <- data.frame(fpr = unlist(perf_obj2@x.values),
+                       tpr = unlist(perf_obj2@y.values))%>%
+  mutate(
+    UR_Category = "Large fringe metro",
+    auroc = auroc2
+  )
+
+roc_data3 <- data.frame(fpr = unlist(perf_obj3@x.values),
+                       tpr = unlist(perf_obj3@y.values))%>%
+  mutate(
+    UR_Category = "Medium metro",
+    auroc = auroc3
+  )
+
+roc_data4 <- data.frame(fpr = unlist(perf_obj4@x.values),
+                       tpr = unlist(perf_obj4@y.values))%>%
+  mutate(
+    UR_Category = "Small metro",
+    auroc = auroc4
+  )
+
+roc_data5 <- data.frame(fpr = unlist(perf_obj5@x.values),
+                       tpr = unlist(perf_obj5@y.values))%>%
+  mutate(
+    UR_Category = "Micropolitan",
+    auroc = auroc5
+  )
+
+roc_data6 <- data.frame(fpr = unlist(perf_obj6@x.values),
+                       tpr = unlist(perf_obj6@y.values))%>%
+  mutate(
+    UR_Category = "Noncore",
+    auroc = auroc6
+  )
+roc_data = rbind(
+  roc_data1,
+  roc_data2,
+  roc_data3,
+  roc_data4,
+  roc_data5,
+  roc_data6
+)
+
+# Create the ROC curve plot with AUROC
+roc_plot <- ggplot(data = roc_data, aes(x = fpr, y = tpr)) +
+  geom_path(color = "#377eb8", size = 1) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  labs(
+    x = "False Positive Rate", y = "True Positive Rate",
+       title = "ROC Curve for Evaluating CDC Transmission Risk Level") +
+  theme_bw() +
+  facet_wrap(. ~ UR_Category,
+             ncol=2)+
+  geom_text(aes(x = 0.8, y = 0.2, label = paste("AUROC =", round(auroc, 2))),
+            size = 4, show.legend = FALSE, data = subset(roc_data, !is.na(auroc)))
+
+
+# Print the ROC curve plot
+print(roc_plot)
+
+
+```
+
+
+
+
+\newpage
+
+```{r echo = F, warning=F,  results = "asis"}
+cm = confusionMatrix(factor(merged_counties$expected_higher_rt),
+                          factor(merged_counties$actual_higher_rt))
+  
+# Create the confusion matrix
+confusion_matrix <- cm$table
+
+# Convert the confusion matrix to a data frame
+confusion_df <- as.data.frame(confusion_matrix)
+
+
+# Calculate percentage for labels
+confusion_df$Percent <- sprintf("%.1f%%", confusion_df$Freq / sum(confusion_df$Freq) * 100)
+
+
+# Plot the confusion matrix using ggplot2
+g = ggplot(confusion_df,
+           aes(x = Reference, y = Prediction, fill = Freq)) +
+  geom_tile() +
+  #geom_text(aes(label = Count), color = "black") +
+  geom_text(aes(label = Percent), color = "black", size = 3) +
+  scale_fill_gradient(low = "#fff7ec", high = "#ef6548") +
+    scale_x_discrete(limits = rev(levels(confusion_df$Reference)),
+                     position = "top") +  # Reverse x-axis
+
+  labs(title = paste0("Confusion Matrix for all counties") ,
+       x = "Actual",
+       y = "Predicted") +
+  theme_minimal()+
+  guides(fill = FALSE)
+g
+```
+
+
+* True Positives (TP): In 317117 cases we expected a higher infection rate number in 3 weeks later compared to other counties, and the actual infection rate number was indeed higher in those cases.
+
+* False Positives (FP): In 509605 cases we expected a higher infection rate number in 3 weeks later compared to other counties, but the actual infection rate number was lower in those cases.
+
+* True Negatives (TN): In 155791 cases we expected a lower infection rate number in 3 weeks later compared to other counties, and the actual infection rate number was indeed lower in those cases.
+
+* False Negatives (FN): In 199487 cases we expected a lower infection rate number in 3 weeks later compared to other counties, but the actual infection rate number was higher in those cases.
+
+**Accuracy**: The overall accuracy of the model is 0.29, which means the model correctly identified 29% of the cases.
+
+
+Then we calculated the confusion matrix in each NCHS category.
+
+
+```{r echo = F, warning=F,  results = "asis", fig.width=10, fig.height=12}
+cm1 = confusionMatrix(factor(county1$expected_higher_rt),
+                          factor(county1$actual_higher_rt))
+
+cm2 = confusionMatrix(factor(county2$expected_higher_rt),
+                          factor(county2$actual_higher_rt))
+
+cm3 = confusionMatrix(factor(county3$expected_higher_rt),
+                          factor(county3$actual_higher_rt))
+
+cm4 = confusionMatrix(factor(county4$expected_higher_rt),
+                          factor(county4$actual_higher_rt))
+
+cm5 = confusionMatrix(factor(county5$expected_higher_rt),
+                          factor(county5$actual_higher_rt))
+
+cm6 = confusionMatrix(factor(county6$expected_higher_rt),
+                          factor(county6$actual_higher_rt))
+
+
+  
+# Create the confusion matrix
+confusion_df1 <- as.data.frame(cm1$table) %>%
+  mutate(
+    UR_Category = "Large central metro",
+    Percent = sprintf("%.1f%%", Freq / sum(Freq) * 100),
+    per_num = Freq / sum(Freq) * 100
+  )
+
+confusion_df2 <- as.data.frame(cm2$table) %>%
+  mutate(
+    UR_Category = "Large fringe metro",
+    Percent = sprintf("%.1f%%", Freq / sum(Freq) * 100),
+    per_num = Freq / sum(Freq) * 100
+  )
+
+confusion_df3 <- as.data.frame(cm3$table) %>%
+  mutate(
+    UR_Category = "Medium metro",
+    Percent = sprintf("%.1f%%", Freq / sum(Freq) * 100),
+    per_num = Freq / sum(Freq) * 100
+  )
+
+confusion_df4 <- as.data.frame(cm4$table) %>%
+  mutate(
+    UR_Category = "Small metro",
+    Percent = sprintf("%.1f%%", Freq / sum(Freq) * 100),
+    per_num = Freq / sum(Freq) * 100
+  )
+
+confusion_df5 <- as.data.frame(cm5$table) %>%
+  mutate(
+    UR_Category = "Micropolitan",
+    Percent = sprintf("%.1f%%", Freq / sum(Freq) * 100),
+    per_num = Freq / sum(Freq) * 100
+  )
+
+confusion_df6 <- as.data.frame(cm6$table) %>%
+  mutate(
+    UR_Category = "Noncore",
+    Percent = sprintf("%.1f%%", Freq / sum(Freq) * 100),
+    per_num = Freq / sum(Freq) * 100
+  )
+
+
+confusion_df = rbind(confusion_df1,
+                     confusion_df2,
+                     confusion_df3,
+                     confusion_df4,
+                     confusion_df5,
+                     confusion_df6)
+
+
+
+# Plot the confusion matrix using ggplot2
+ggplot(confusion_df,
+           aes(x = Reference, y = Prediction, fill = per_num)) +
+  geom_tile() +
+  #geom_text(aes(label = Count), color = "black") +
+  geom_text(aes(label = Percent), color = "black", size = 3) +
+  scale_fill_gradient(low = "#fff7ec",
+                      high = "#ef6548") +
+    scale_x_discrete(limits = rev(levels(confusion_df$Reference)),
+                     position = "top") +  # Reverse x-axis
+
+  labs(
+    #title = paste0("Confusion Matrix for", UR Category, " counties") ,
+       x = "Actual",
+       y = "Predicted") +
+  theme_minimal()+
+  guides(fill = FALSE)+
+  facet_wrap(. ~ UR_Category,
+             ncol=2)
+
+
+```
+
+## RESULTS
+
+
+## References
+
