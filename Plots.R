@@ -86,7 +86,7 @@ ggsave("Fig/gAnova.jpg",
        gAnova, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 
 
@@ -105,7 +105,7 @@ ggsave("Fig/gEmmeans1.jpg",
        gEmmeans1, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 
 
@@ -130,7 +130,7 @@ ggsave("Fig/gEmmeans2.jpg",
        gEmmeans2, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 kruskal.test(Rt3NextWeeks ~ cdcTransmissionLevel,
              data=data)
@@ -155,7 +155,7 @@ ggsave("Fig/gbox1.jpg",
        gbox1, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 
 
@@ -176,7 +176,7 @@ ggsave("Fig/gbox2.jpg",
        gbox2, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 
 
@@ -201,9 +201,9 @@ gFacet = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill =
 
 ggsave("Fig/gFacet.jpg",
        gFacet, 
-       height=18,
-       width=6,
-       scale=1.65)
+       height=14,
+       width=8,
+       scale=1.8)
 
 
 # facet box 3 weeks later  ####
@@ -226,9 +226,9 @@ gFacet3 = ggplot(data, aes(x = cdcTransmissionLevel, y = Rt3NextWeeks, fill = cd
 
 ggsave("Fig/gFacet3.jpg",
        gFacet3, 
-       height=18,
+       height=14,
        width=6,
-       scale=1.65)
+       scale=1.8)
 
 
 # table output ####
@@ -269,6 +269,8 @@ table_data <- data %>%
 
 UR_category_list = unique(sampleSize$UR_category)
 
+
+
 kbl_result <- kbl(table_data,
     caption = "Summary statistics by CDC transmission level",
     booktabs = T) %>%
@@ -281,10 +283,13 @@ kbl_result <- kbl(table_data,
   pack_rows(UR_category_list[6], 21, 24)
 
 
-pdf("table1.pdf", width = 8.5, height = 11)
-print(kbl_result)  # Replace `kbl_result` with the name of the variable containing the table
-dev.off()
 
+# Create a temporary plot to save the table
+output_file_jpg <- "Fig/table1.jpg"
+kableExtra::save_kable(kbl_result,
+                       file = output_file_jpg,
+                       zoom = 4,
+                       vwidth = 800)
 
 # AUC ####
 county_list = county.NCHS %>%
@@ -369,7 +374,7 @@ ggsave("Fig/gRoc.jpg",
        gRoc, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 
 # AUC facet ####
@@ -483,7 +488,7 @@ ggsave("Fig/gRocF.jpg",
        gRocF, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 
 # Confusion Matrix ####
@@ -523,7 +528,7 @@ ggsave("Fig/gCM.jpg",
        gCM, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
 
 
 
@@ -628,4 +633,4 @@ ggsave("Fig/gCMF.jpg",
        gCMF, 
        height=6,
        width=8,
-       scale=1.65)
+       scale=1.8)
