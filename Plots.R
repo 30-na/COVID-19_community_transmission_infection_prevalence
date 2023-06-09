@@ -2,7 +2,6 @@
 # Library # boxplot Anova   #### 
 library(dplyr)
 library(ggplot2)
-library(car)
 library(FSA)
 library(knitr)
 library(kableExtra)
