@@ -13,9 +13,10 @@ library(ROCR)
 
 # Load data #### 
 load("ProcessedData/county.NCHS.RDA")
-load("ProcessedData/AUROC_merged.RDA")
+load("ProcessedData/AUROC_merged2.RDA")
 
 
+names(merged_counties2)
 
 print("step00")
 
@@ -44,7 +45,7 @@ UR6 = filter(county_list, UR_code == 6)$fips_state
 
 print("step1")
 
-merged_counties = merged_counties %>%
+merged_counties = merged_counties2 %>%
   mutate(
     truePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 1, 1, 0),
     falsePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 0, 1, 0),
@@ -61,12 +62,26 @@ merged_counties = merged_counties %>%
       stateFips %in% UR5 ~ 5,
       stateFips %in% UR6 ~ 6
     )
+  )%>%
+  dplyr::select(
+    UR_code,
+    UR_category,
+    mean_last_7_days,
+    Rt3NextWeeks,
+    risk_level,
+    stateFips,
+    target_county,
+    target_risk,
+    target_rt,expected_higher_rt,
+    actual_higher_rt
   )
 
-print("step2")
+gc()
 
 county1 = filter(merged_counties, UR_code == 1 & target_UR == 1)
+print("step2.1")
 county2 = filter(merged_counties, UR_code == 2 & target_UR == 2)
+print("step2.2")
 county3 = filter(merged_counties, UR_code == 3 & target_UR == 3)
 county4 = filter(merged_counties, UR_code == 4 & target_UR == 4)
 county5 = filter(merged_counties, UR_code == 5 & target_UR == 5)
