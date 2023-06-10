@@ -13,7 +13,7 @@ library(ROCR)
 
 # Load data #### 
 load("ProcessedData/county.NCHS.RDA")
-load("ProcessedData/AUROC_merged2.RDA")
+load("ProcessedData/AUROC_merged.RDA")
 
 
 names(merged_counties2)
@@ -45,7 +45,7 @@ UR6 = filter(county_list, UR_code == 6)$fips_state
 
 print("step1")
 
-merged_counties = merged_counties2 %>%
+merged_counties = merged_counties %>%
   mutate(
     truePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 1, 1, 0),
     falsePositive = ifelse(expected_higher_rt == 1 & actual_higher_rt == 0, 1, 0),
