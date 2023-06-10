@@ -72,16 +72,19 @@ county4 = filter(merged_counties, UR_code == 4 & target_UR == 4)
 county5 = filter(merged_counties, UR_code == 5 & target_UR == 5)
 county6 = filter(merged_counties, UR_code == 6 & target_UR == 6)
 
+print("step02-1")
 # Create the prediction object
 pred_obj <- prediction(merged_counties$expected_higher_rt,
                        merged_counties$actual_higher_rt)
-
+print("step02-2")
 # Create the performance object
 perf_obj <- performance(pred_obj, "tpr", "fpr")
 
+print("step02-3")
 # Calculate the AUROC
 auroc <- performance(pred_obj, "auc")@y.values[[1]]
 
+print("step02-4")
 # Create the ROC curve data frame
 roc_data <- data.frame(fpr = unlist(perf_obj@x.values),
                        tpr = unlist(perf_obj@y.values))
