@@ -18,6 +18,7 @@ load("ProcessedData/AUROC_merged.RDA")
 
 
 print("step00")
+
 # AUC ####
 county_list = county.NCHS %>%
   select(state,
@@ -32,6 +33,7 @@ county_list = county.NCHS %>%
          UR_code,
          UR_category)
 
+print("step00-1")
 UR1 = filter(county_list, UR_code == 1)$fips_state
 UR2 = filter(county_list, UR_code == 2)$fips_state
 UR3 = filter(county_list, UR_code == 3)$fips_state
