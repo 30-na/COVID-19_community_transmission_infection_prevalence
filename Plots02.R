@@ -224,7 +224,7 @@ roc_data = rbind(
   roc_data6
 )
 
-# Create the ROC curve plot with AUROC
+# Create the ROC curve plot with AUROC Facet wrap
 gRocF <- ggplot(data = roc_data, aes(x = fpr, y = tpr)) +
   geom_path(color = "#377eb8", size = 1) +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
@@ -242,7 +242,7 @@ gRocF <- ggplot(data = roc_data, aes(x = fpr, y = tpr)) +
 ggsave("Fig/gRocF.jpg",
        gRocF, 
        height=6,
-       width=8,
+       width=4,
        scale=1.8)
 
 
@@ -276,7 +276,7 @@ gCM = ggplot(confusion_df,
   labs(title = paste0("Confusion Matrix for all counties") ,
        x = "Actual",
        y = "Predicted") +
-  theme_minimal()+
+  #theme_minimal()+
   guides(fill = FALSE)
 
 ggsave("Fig/gCM.jpg",
