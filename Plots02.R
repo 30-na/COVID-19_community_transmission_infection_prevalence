@@ -73,12 +73,17 @@ merged_counties = merged_counties2 %>%
     target_county,
     target_risk,
     target_rt,expected_higher_rt,
-    actual_higher_rt
+    actual_higher_rt,
+    target_UR,
+    truePositive,
+    falsePositive,
+    trueNegative,
+    falseNegative
   )
 
 gc()
 
-county1 = filter(merged_counties, UR_code == 1 & target_UR == 1)
+county1 = dplyr::filter(merged_counties, UR_code == 1 & target_UR == 1)
 print("step2.1")
 county2 = filter(merged_counties, UR_code == 2 & target_UR == 2)
 print("step2.2")
