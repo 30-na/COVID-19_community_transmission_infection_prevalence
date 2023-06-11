@@ -16,7 +16,7 @@ load("ProcessedData/county.NCHS.RDA")
 load("ProcessedData/AUROC_merged.RDA")
 
 
-names(merged_counties2)
+names(merged_counties)
 
 print("step00")
 
