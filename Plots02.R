@@ -277,13 +277,14 @@ gCM = ggplot(confusion_df,
        x = "Actual",
        y = "Predicted") +
   #theme_minimal()+
+  theme_classic()+
   guides(fill = FALSE)
 
 ggsave("Fig/gCM.jpg",
        gCM, 
        height=6,
        width=8,
-       scale=1.8)
+       scale=1)
 
 
 
@@ -378,7 +379,8 @@ gCMF = ggplot(confusion_df,
     #title = paste0("Confusion Matrix for", UR Category, " counties") ,
     x = "Actual",
     y = "Predicted") +
-  theme_minimal()+
+  #theme_minimal()+
+  theme_classic()+
   guides(fill = FALSE)+
   facet_wrap(. ~ UR_Category,
              ncol=2)
@@ -387,5 +389,10 @@ gCMF = ggplot(confusion_df,
 ggsave("Fig/gCMF.jpg",
        gCMF, 
        height=6,
-       width=8,
+       width=4,
        scale=1.8)
+
+
+
+
+
