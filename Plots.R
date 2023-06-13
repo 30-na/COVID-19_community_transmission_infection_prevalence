@@ -141,7 +141,8 @@ cont <-
 
 gEmmeans1 = plot(cont, comparisons = F)+
   theme_bw()+
-  labs(title = "Rt estimated marginal means for each CDC risk level")
+  labs(title = "Rt estimated marginal means for each CDC risk level") +
+  xlab("Mean Infection Rate")
 
 ggsave("Fig/gEmmeans1.jpg",
        gEmmeans1, 
@@ -166,7 +167,8 @@ cont3weeks <-
 gEmmeans2 = plot(cont3weeks, comparisons = F)+
   theme_bw()+
   labs(title = "Rt estimated marginal means for each CDC risk level 3 weeks later")
-cont3weeks
+cont3weeks +
+  xlab("Mean Infection Rate")
 
 ggsave("Fig/gEmmeans2.jpg",
        gEmmeans2, 
