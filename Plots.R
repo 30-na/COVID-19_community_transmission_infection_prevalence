@@ -17,7 +17,7 @@ load("ProcessedData/CovidActNow.rda")
 load("ProcessedData/county.NCHS.RDA")
 load("ProcessedData/AUROC_merged.RDA")
 
-
+unique(covid_data$date)
 # Clean and Merged Data #### 
 data = covid_data %>%
   dplyr::select(
@@ -86,8 +86,29 @@ ggsave("Fig/gAnova.jpg",
        gAnova, 
        height=6,
        width=8,
-       scale=1.8)
+       scale=1)
 
+
+# boxplot Anova  3 weeks later #### 
+myfit = aov(Rt3NextWeeks ~ cdcTransmissionLevel,
+            data=data)
+anova(myfit)
+
+
+gAnova3 = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)", 
+       title = "Distribution of Rt by CDC transmission level 3 weeks later") +
+  theme_bw()+
+  stat_compare_means(method = "anova")+
+  ylim(c(0,3.3))
+
+ggsave("Fig/gAnova.jpg",
+       gAnova3, 
+       height=6,
+       width=8,
+       scale=1)
 
 
 # Emmeans plot same day  #### 
@@ -105,7 +126,7 @@ ggsave("Fig/gEmmeans1.jpg",
        gEmmeans1, 
        height=6,
        width=8,
-       scale=1.8)
+       scale=1)
 
 
 
@@ -130,7 +151,7 @@ ggsave("Fig/gEmmeans2.jpg",
        gEmmeans2, 
        height=6,
        width=8,
-       scale=1.8)
+       scale=1)
 
 kruskal.test(Rt3NextWeeks ~ cdcTransmissionLevel,
              data=data)
@@ -155,7 +176,7 @@ ggsave("Fig/gbox1.jpg",
        gbox1, 
        height=6,
        width=8,
-       scale=1.8)
+       scale=1)
 
 
 
@@ -176,7 +197,7 @@ ggsave("Fig/gbox2.jpg",
        gbox2, 
        height=6,
        width=8,
-       scale=1.8)
+       scale=1)
 
 
 
