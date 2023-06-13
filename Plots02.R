@@ -129,7 +129,7 @@ ggsave("Fig/gRoc.jpg",
        gRoc, 
        height=6,
        width=8,
-       scale=1.8)
+       scale=1)
 
 print("step4")
 # AUC facet ####
