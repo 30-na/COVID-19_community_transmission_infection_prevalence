@@ -84,7 +84,7 @@ gAnova = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill =
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
     method="t.test"
   )+
-  ylim(c(0,3.3))
+  ylim(c(0,3.8))
 
 ggsave("Fig/gAnova.jpg",
        gAnova, 
@@ -110,7 +110,7 @@ gAnova3 = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill 
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
     method="t.test"
   )+
-  ylim(c(0,3.3))
+  ylim(c(0,3.8))
 
 ggsave("Fig/gAnova.jpg",
        gAnova3, 
@@ -122,7 +122,7 @@ ggsave("Fig/gAnova.jpg",
 
 # merge two onova graph
 # Combine the plots using grid.arrange
-combined_plot <- grid.arrange(gAnova, gAnova3, nrow = 1)
+combined_plot <- grid.arrange(gAnova3, gAnova, nrow = 1)
 
 # Save the combined plot
 ggsave("Fig/combined_plotAnova.jpg",
