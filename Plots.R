@@ -11,7 +11,7 @@ library(emmeans)
 library(pROC)
 library(caret)
 library(ROCR)
-
+library(gridExtra)
 # Load data #### 
 load("ProcessedData/CovidActNow.rda")
 load("ProcessedData/county.NCHS.RDA")
@@ -80,6 +80,10 @@ gAnova = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill =
        title = "Distribution of Rt by CDC transmission level") +
   theme_bw()+
   stat_compare_means(method = "anova")+
+  stat_compare_means(
+    comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
+    method="t.test"
+  )+
   ylim(c(0,3.3))
 
 ggsave("Fig/gAnova.jpg",
@@ -102,6 +106,10 @@ gAnova3 = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill 
        title = "Distribution of Rt by CDC transmission level 3 weeks later") +
   theme_bw()+
   stat_compare_means(method = "anova")+
+  stat_compare_means(
+    comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
+    method="t.test"
+  )+
   ylim(c(0,3.3))
 
 ggsave("Fig/gAnova.jpg",
@@ -109,6 +117,19 @@ ggsave("Fig/gAnova.jpg",
        height=6,
        width=8,
        scale=1)
+
+
+
+# merge two onova graph
+# Combine the plots using grid.arrange
+combined_plot <- grid.arrange(gAnova, gAnova3, nrow = 1)
+
+# Save the combined plot
+ggsave("Fig/combined_plotAnova.jpg",
+       combined_plot,
+       height = 6,
+       width = 10,
+       scale = 1)
 
 
 # Emmeans plot same day  #### 
