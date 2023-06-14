@@ -144,7 +144,7 @@ cont <-
 gEmmeans1 = plot(cont, comparisons = F)+
   theme_bw()+
   labs(title = "Rt estimated marginal means for each CDC risk level")+
-  labs( x = "Mean Risk Level")+
+  labs( x = "Mean risk level")+
   labs(y = "CDC risk level")+
   labs(caption = "Distribution of Rt (last 7 days average) across different CDC risk levels.")
 
@@ -362,7 +362,7 @@ gAnovaF = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill 
   stat_compare_means(
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
     method="t.test",
-    size = 2.2
+    size = 2.3
   )+
   ylim(c(0,3.8))+
   facet_wrap(. ~ UR_category,
