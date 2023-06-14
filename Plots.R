@@ -139,16 +139,19 @@ cont <-
     , specs = "cdcTransmissionLevel"
   )
 
+
+
 gEmmeans1 = plot(cont, comparisons = F)+
   theme_bw()+
-  labs(title = "Rt estimated marginal means for each CDC risk level") +
-  xlab("Mean Infection Rate")
+  labs(title = "Rt estimated marginal means for each CDC risk level")+
+  labs( x = "Mean Risk Level")
 
 ggsave("Fig/gEmmeans1.jpg",
        gEmmeans1, 
        height=6,
        width=8,
        scale=1)
+
 
 
 
@@ -341,3 +344,39 @@ kableExtra::save_kable(kbl_result,
 
 
 
+
+
+
+
+# Facet ANOVA box same day #### 
+
+gAnovaF = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  labs(x = "CDC risk level", y = "Rt (last 7 days Average)", 
+       title = "Distribution of Rt by CDC risk level",
+       caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification.\nStatistical comparisons based on ANOVA and pairwise t-tests.") +
+  theme_bw()+
+  stat_compare_means(method = "anova")+
+  stat_compare_means(
+    comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
+    method="t.test"
+  )+
+  ylim(c(0,3.8))+
+  facet_wrap(. ~ UR_category,
+             ncol=2)+
+  guides(fill = guide_legend(title = "CDC Risk Level")) +
+  labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification.\nStatistical comparisons based on ANOVA and pairwise t-tests.") 
+
+
+
+ggsave("Fig/gAnovaF.jpg",
+       gAnovaF, 
+       height=8,
+       width=10,
+       scale=1)
+
+
+
+
+# facet ANOVA box 3 weeks later  ####
