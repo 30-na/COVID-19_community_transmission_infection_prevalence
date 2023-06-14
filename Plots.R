@@ -362,15 +362,14 @@ gAnovaF = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill 
   stat_compare_means(
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
     method="t.test",
-    size = 2
+    size = 2.2
   )+
   ylim(c(0,3.8))+
   facet_wrap(. ~ UR_category,
              ncol=2)+
   guides(fill = guide_legend(title = "CDC Risk Level")) +
   labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification.\nStatistical comparisons based on ANOVA and pairwise t-tests.") +
-  theme(plot.caption = element_text(hjust = 1))
-
+  theme(plot.caption = element_text(hjust = 0))
 
 
 ggsave("Fig/gAnovaF.jpg",
