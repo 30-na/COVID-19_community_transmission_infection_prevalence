@@ -144,7 +144,9 @@ cont <-
 gEmmeans1 = plot(cont, comparisons = F)+
   theme_bw()+
   labs(title = "Rt estimated marginal means for each CDC risk level")+
-  labs( x = "Mean Risk Level")
+  labs( x = "Mean Risk Level")+
+  labs(y = "CDC risk level")+
+  labs(caption = "Distribution of Rt (last 7 days average) across different CDC risk levels.")
 
 ggsave("Fig/gEmmeans1.jpg",
        gEmmeans1, 
@@ -359,20 +361,22 @@ gAnovaF = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill 
   stat_compare_means(method = "anova")+
   stat_compare_means(
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
-    method="t.test"
+    method="t.test",
+    size = 2
   )+
   ylim(c(0,3.8))+
   facet_wrap(. ~ UR_category,
              ncol=2)+
   guides(fill = guide_legend(title = "CDC Risk Level")) +
-  labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification.\nStatistical comparisons based on ANOVA and pairwise t-tests.") 
+  labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification.\nStatistical comparisons based on ANOVA and pairwise t-tests.") +
+  theme(plot.caption = element_text(hjust = 1))
 
 
 
 ggsave("Fig/gAnovaF.jpg",
        gAnovaF, 
-       height=8,
-       width=10,
+       height=10,
+       width=8,
        scale=1)
 
 
