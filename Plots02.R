@@ -377,7 +377,7 @@ gCMF = ggplot(confusion_df,
                    position = "top") +  # Reverse x-axis
   
   labs(
-    title = paste0("Confusion Matrix showing the prediction accuracy of Rt in different UR categories") ,
+    title = paste0("Figure C: Confusion Matrix showing the prediction accuracy of Rt in different UR categories") ,
     x = "Actual",
     y = "Predicted") +
   #theme_minimal()+
@@ -385,7 +385,7 @@ gCMF = ggplot(confusion_df,
   guides(fill = FALSE)+
   facet_wrap(. ~ UR_Category,
              ncol=2)+ 
-  labs(caption = "Figure C: Confusion Matrix showing the three weeks later predictive performance of the CDC risk level 
+  labs(caption = "Confusion Matrix showing the three weeks later predictive performance of the CDC risk level 
        \nas indicator of Rt values in each NCHS Urban-Rural Classification.") +
   theme(plot.caption = element_text(hjust = 0))
 
