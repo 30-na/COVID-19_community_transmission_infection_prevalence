@@ -98,7 +98,7 @@ myfit = aov(mean_last_7_days ~ cdcTransmissionLevel,
              data=data)
 
 
-anova(myfit3weeks)
+
 
 
 gAnova3 = ggplot(data, aes(x = cdcTransmissionLevel,
