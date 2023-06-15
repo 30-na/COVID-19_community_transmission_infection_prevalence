@@ -10,6 +10,7 @@ library(emmeans)
 library(pROC)
 library(caret)
 library(ROCR)
+library(grid)
 
 # Load data #### 
 load("ProcessedData/county.NCHS.RDA")
