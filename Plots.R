@@ -183,7 +183,7 @@ combined_plot = grid.arrange(
   gAnova3,
   gEmmeans3,
   nrow = 1,
-  widths = c(3, 2),
+  widths = c(5.5, 4.5),
   bottom = textGrob("The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. \nAdditionally, the marginal means are also presented.",
                     x = 0,
                     y = 0.5,
