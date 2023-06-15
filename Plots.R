@@ -77,7 +77,7 @@ gAnova = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill =
   geom_boxplot(alpha=.7) +
   scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
   labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)", 
-       title = "Distribution of Rt by CDC transmission level") +
+       title = "Distribution of Rt by CDC risk level") +
   theme_bw()+
   stat_compare_means(method = "anova")+
   stat_compare_means(
@@ -94,23 +94,28 @@ ggsave("Fig/gAnova.jpg",
 
 
 # boxplot Anova  3 weeks later #### 
-myfit = aov(Rt3NextWeeks ~ cdcTransmissionLevel,
-            data=data)
-anova(myfit)
+myfit = aov(mean_last_7_days ~ cdcTransmissionLevel,
+             data=data)
 
 
-gAnova3 = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
+anova(myfit3)
+
+
+gAnova3 = ggplot(data, aes(x = cdcTransmissionLevel,
+                           y = Rt3NextWeeks,
+                           fill = cdcTransmissionLevel)) +
   geom_boxplot(alpha=.7) +
   scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
-  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)", 
-       title = "Distribution of Rt by CDC transmission level 3 weeks later") +
+  labs(x = "CDC riks level", y = "Rt (last 7 days Average)", 
+       title = "Figur A: Distribution of Rt by CDC risk level 3 weeks later") +
   theme_bw()+
   stat_compare_means(method = "anova")+
   stat_compare_means(
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
     method="t.test"
   )+
-  ylim(c(0,3.8))
+  ylim(c(0,3.8))+
+  guides(fill = guide_legend(title = "CDC Risk Level"))
 
 ggsave("Fig/gAnova.jpg",
        gAnova3, 
@@ -118,18 +123,6 @@ ggsave("Fig/gAnova.jpg",
        width=8,
        scale=1)
 
-
-
-# merge two onova graph
-# Combine the plots using grid.arrange
-combined_plot <- grid.arrange(gAnova3, gAnova, nrow = 1)
-
-# Save the combined plot
-ggsave("Fig/combined_plotAnova.jpg",
-       combined_plot,
-       height = 6,
-       width = 10,
-       scale = 1)
 
 
 # Emmeans plot same day  #### 
@@ -143,10 +136,11 @@ cont <-
 
 gEmmeans1 = plot(cont, comparisons = F)+
   theme_bw()+
-  labs(title = "Rt estimated marginal means for each CDC risk level")+
+  labs(title = "Rt means for each CDC risk level")+
   labs( x = "Mean risk level")+
   labs(y = "CDC risk level")+
-  labs(caption = "Distribution of Rt (last 7 days average) across different CDC risk levels.")
+  labs(caption = "Distribution of Rt (last 7 days average) across different CDC risk levels.")+
+  theme(plot.caption = element_text(hjust = 0))
 
 ggsave("Fig/gEmmeans1.jpg",
        gEmmeans1, 
@@ -169,21 +163,34 @@ cont3weeks <-
     , specs = "cdcTransmissionLevel"
   )
 
-gEmmeans2 = plot(cont3weeks, comparisons = F)+
+gEmmeans3 = plot(cont3weeks, comparisons = F)+
   theme_bw()+
-  labs(title = "Rt estimated marginal means for each CDC risk level 3 weeks later")+
-  labs( x = "Mean Risk Level")
+  labs(title = "Figur B: Rt means for each CDC risk level")+
+  labs( x = "Mean risk level")+
+  labs(y = "CDC risk level")
 
-ggsave("Fig/gEmmeans2.jpg",
-       gEmmeans2, 
+ggsave("Fig/gEmmeans3.jpg",
+       gEmmeans3, 
        height=6,
        width=8,
        scale=1)
 
-kruskal.test(Rt3NextWeeks ~ cdcTransmissionLevel,
-             data=data)
 
+# merge two onova graph ####
+# Combine the plots using grid.arrange
+combined_plot <- grid.arrange(
+  gAnova3,
+  gEmmeans3,
+  nrow = 1)+
+  labs(caption = "the distribution of infection rate numbers in different CDC risk levels based on ANOVA \nand pairwise t-tests. Additionally, the marginal means are also presented.")+
+  theme(plot.caption = element_text(hjust = 0))
 
+# Save the combined plot
+ggsave("Fig/combined_plot.jpg",
+       combined_plot,
+       height = 6,
+       width = 10,
+       scale = 1)
 
 
 # boxplot kruskal same day ####
@@ -351,9 +358,6 @@ kableExtra::save_kable(kbl_result,
                        file = output_file_jpg,
                        zoom = 4,
                        vwidth = 800)
-
-
-
 
 
 
