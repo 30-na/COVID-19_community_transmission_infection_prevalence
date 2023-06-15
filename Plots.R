@@ -108,7 +108,7 @@ gAnova3 = ggplot(data, aes(x = cdcTransmissionLevel,
   geom_boxplot(alpha=.7) +
   scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
   labs(x = "CDC riks level", y = "Rt (last 7 days Average)", 
-       title = "Figur A: Distribution of Rt by CDC risk level 3 weeks later") +
+       title = "Figure A): Distribution of Rt by CDC risk level 3 weeks later") +
   theme_bw()+
   stat_compare_means(method = "anova")+
   stat_compare_means(
@@ -166,9 +166,9 @@ cont3weeks <-
 
 gEmmeans3 = plot(cont3weeks, comparisons = F)+
   theme_bw()+
-  labs(title = "Figur B: Rt means for each CDC risk level")+
+  labs(title = "Figure B): Rt means for each CDC risk level")+
   labs( x = "Mean risk level")+
-  labs(y = "CDC risk level")
+  labs(y = "")
 
 ggsave("Fig/gEmmeans3.jpg",
        gEmmeans3, 
@@ -183,7 +183,8 @@ combined_plot = grid.arrange(
   gAnova3,
   gEmmeans3,
   nrow = 1,
-  bottom = textGrob("The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. Additionally, the marginal means are also presented.",
+  widths = c(3, 2),
+  bottom = textGrob("The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. \nAdditionally, the marginal means are also presented.",
                     x = 0,
                     y = 0.5,
                     just = "left"))
