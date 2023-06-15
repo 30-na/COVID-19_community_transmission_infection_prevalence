@@ -192,8 +192,8 @@ combined_plot = grid.arrange(
 # Save the combined plot
 ggsave("Fig/combined_plot.jpg",
        combined_plot,
-       height = 6,
-       width = 10,
+       height = 6.6,
+       width = 11,
        scale = 1)
 
 
