@@ -181,8 +181,11 @@ ggsave("Fig/gEmmeans3.jpg",
 combined_plot <- grid.arrange(
   gAnova3,
   gEmmeans3,
-  nrow = 1)+
-  labs(caption = "the distribution of infection rate numbers in different CDC risk levels based on ANOVA \nand pairwise t-tests. Additionally, the marginal means are also presented.")+
+  nrow = 1
+)
+
+# Add a caption to the combined plot
+combined_plot <- combined_plot + labs(caption = "The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. Additionally, the marginal means are also presented.") +
   theme(plot.caption = element_text(hjust = 0))
 
 # Save the combined plot
