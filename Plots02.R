@@ -383,7 +383,9 @@ gCMF = ggplot(confusion_df,
   theme_classic()+
   guides(fill = FALSE)+
   facet_wrap(. ~ UR_Category,
-             ncol=2)
+             ncol=2)+ 
+  labs(caption = "Confusion Matrix showing the prediction accuracy of infection rate number in different Urban-Rural (UR) categories") +
+  theme(plot.caption = element_text(hjust = 0))
 
 
 ggsave("Fig/gCMF.jpg",
