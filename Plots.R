@@ -231,52 +231,65 @@ ggsave("Fig/gbox2.jpg",
 
 # Facet box same day #### 
 
+
 gFacet = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
   geom_boxplot(alpha=.7) +
   scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
-  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)" 
-       ,title = "Distribution of Rt by CDC transmission level"
-  ) +
   theme_bw()+
-  ylim(c(0,3.8))+
   stat_compare_means()+
   stat_compare_means(
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
-    method="wilcox.test"
+    method="wilcox.test",
+    size = 2.5
   )+
+  ylim(c(0,3.8))+
+  labs(x = "CDC risk level", y = "Rt (last 7 days Average)", 
+       title = "Distribution of Rt by CDC risk level") +
+  guides(fill = guide_legend(title = "CDC Risk Level")) +
+  labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification. \nStatistical comparisons based on Kruskal–Wallis and Wilcoxon signed-rank test.") +
+  theme(plot.caption = element_text(hjust = 0))+
   facet_wrap(. ~ UR_category,
              ncol=2)
 
+
 ggsave("Fig/gFacet.jpg",
        gFacet, 
-       height=6,
-       width=4,
-       scale=1.8)
+       height=10,
+       width=8,
+       scale=1)
+
 
 
 # facet box 3 weeks later  ####
 
+
 gFacet3 = ggplot(data, aes(x = cdcTransmissionLevel, y = Rt3NextWeeks, fill = cdcTransmissionLevel)) +
   geom_boxplot(alpha=.7) +
   scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
-  labs(x = "CDC Transmission Level", y = "Rt (last 7 days Average)" 
-       ,title = "Distribution of Rt by CDC transmission level at 21 days later"
-  ) +
   theme_bw()+
-  ylim(c(0,3.8))+
   stat_compare_means()+
   stat_compare_means(
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
-    method="wilcox.test"
+    method="wilcox.test",
+    size = 2.5
   )+
+  ylim(c(0,3.8))+
+  labs(x = "CDC risk level", y = "Rt (last 7 days Average)", 
+       title = "Distribution of Rt by CDC risk level at three weeks later") +
+  guides(fill = guide_legend(title = "CDC Risk Level")) +
+  labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification \nat three weeks later. Statistical comparisons based on Kruskal–Wallis and Wilcoxon signed-rank test.") +
+  theme(plot.caption = element_text(hjust = 0))+
   facet_wrap(. ~ UR_category,
              ncol=2)
 
+
 ggsave("Fig/gFacet3.jpg",
        gFacet3, 
-       height=6,
-       width=4,
-       scale=1.8)
+       height=10,
+       width=8,
+       scale=1)
+
+
 
 
 # table output ####
@@ -354,22 +367,21 @@ kableExtra::save_kable(kbl_result,
 gAnovaF = ggplot(data, aes(x = cdcTransmissionLevel, y = mean_last_7_days, fill = cdcTransmissionLevel)) +
   geom_boxplot(alpha=.7) +
   scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
-  labs(x = "CDC risk level", y = "Rt (last 7 days Average)", 
-       title = "Distribution of Rt by CDC risk level",
-       caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification.\nStatistical comparisons based on ANOVA and pairwise t-tests.") +
   theme_bw()+
   stat_compare_means(method = "anova")+
   stat_compare_means(
     comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
     method="t.test",
-    size = 2.3
+    size = 2.5
   )+
   ylim(c(0,3.8))+
-  facet_wrap(. ~ UR_category,
-             ncol=2)+
+  labs(x = "CDC risk level", y = "Rt (last 7 days Average)", 
+       title = "Distribution of Rt by CDC risk level") +
   guides(fill = guide_legend(title = "CDC Risk Level")) +
   labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification.\nStatistical comparisons based on ANOVA and pairwise t-tests.") +
-  theme(plot.caption = element_text(hjust = 0))
+  theme(plot.caption = element_text(hjust = 0))+
+  facet_wrap(. ~ UR_category,
+             ncol=2)
 
 
 ggsave("Fig/gAnovaF.jpg",
@@ -382,3 +394,29 @@ ggsave("Fig/gAnovaF.jpg",
 
 
 # facet ANOVA box 3 weeks later  ####
+
+gAnovaF3 = ggplot(data, aes(x = cdcTransmissionLevel, y = Rt3NextWeeks, fill = cdcTransmissionLevel)) +
+  geom_boxplot(alpha=.7) +
+  scale_fill_manual(values = c("#4393c3", "#ffffbf", "#fdae61", "#d73027" )) +
+  theme_bw()+
+  stat_compare_means(method = "anova")+
+  stat_compare_means(
+    comparisons = combn(levels(data$cdcTransmissionLevel), 2, simplify = FALSE)[c(1, 4, 6)],
+    method="t.test",
+    size = 2.5
+  )+
+  ylim(c(0,3.8))+
+  labs(x = "CDC risk level", y = "Rt (last 7 days Average)", 
+       title = "Distribution of Rt by CDC risk level at three weeks later") +
+  guides(fill = guide_legend(title = "CDC Risk Level")) +
+  labs(caption = "Distribution of infection rate numbers in different CDC risk levels and NCHS Urban-Rural Classification \nat three weeks later. Statistical comparisons based on ANOVA and pairwise t-tests.") +
+  theme(plot.caption = element_text(hjust = 0))+
+  facet_wrap(. ~ UR_category,
+             ncol=2)
+
+
+ggsave("Fig/gAnovaF3.jpg",
+       gAnovaF3, 
+       height=10,
+       width=8,
+       scale=1)
