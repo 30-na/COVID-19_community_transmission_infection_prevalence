@@ -178,15 +178,14 @@ ggsave("Fig/gEmmeans3.jpg",
 
 # merge two onova graph ####
 # Combine the plots using grid.arrange
-combined_plot <- grid.arrange(
+combined_plot = grid.arrange(
   gAnova3,
   gEmmeans3,
-  nrow = 1
-)
-
-# Add a caption to the combined plot
-combined_plot <- combined_plot + labs(caption = "The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. Additionally, the marginal means are also presented.") +
-  theme(plot.caption = element_text(hjust = 0))
+  nrow = 1,
+  bottom = textGrob("The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. Additionally, the marginal means are also presented.",
+                    x = 0,
+                    y = 0.5,
+                    just = "left"))
 
 # Save the combined plot
 ggsave("Fig/combined_plot.jpg",
@@ -194,6 +193,8 @@ ggsave("Fig/combined_plot.jpg",
        height = 6,
        width = 10,
        scale = 1)
+
+
 
 
 # boxplot kruskal same day ####
