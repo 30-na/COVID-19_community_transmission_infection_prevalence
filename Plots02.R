@@ -19,8 +19,9 @@ load("ProcessedData/AUROC_merged.RDA")
 
 names(merged_counties)
 
-print("step00")
-
+print("nrow sample: ")
+norow(compared_counties)
+print("    ----------------        ")
 # AUC ####
 county_list = county.NCHS %>%
   select(state,
@@ -377,17 +378,17 @@ gCMF = ggplot(confusion_df,
                    position = "top") +  # Reverse x-axis
   
   labs(
-    title = paste0("Confusion Matrix showing the prediction accuracy of Rt in different UR categories") ,
+    title = paste0("Confusion Matrix showing the prediction accuracy of Rt in \ndifferent UR categories") ,
     x = "Actual",
     y = "Predicted") +
   #theme_minimal()+
   theme_classic()+
   guides(fill = FALSE)+
   facet_wrap(. ~ UR_Category,
-             ncol=2)+ 
-  labs(caption = "Figure 2: Confusion Matrix showing the three weeks later predictive performance of the CDC risk level 
-       \nas indicator of Rt values in each NCHS Urban-Rural Classification.") +
-  theme(plot.caption = element_text(hjust = 0))
+             ncol=2)
+  #labs(caption = "Figure 2: Confusion Matrix showing the three weeks later predictive performance of the CDC risk level 
+   #    \nas indicator of Rt values in each NCHS Urban-Rural Classification.") +
+  #theme(plot.caption = element_text(hjust = 0))
 
 
 ggsave("Fig/gCMF.jpg",
