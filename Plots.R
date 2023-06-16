@@ -183,18 +183,20 @@ combined_plot = grid.arrange(
   gAnova3,
   gEmmeans3,
   nrow = 1,
-  widths = c(6.2, 5),
-  bottom = textGrob("Figure 1: The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. \nAdditionally, the marginal means are also presented.",
-                    x = 0,
-                    y = 0.5,
-                    just = "left"))
+  widths = c(6.2, 5)
+  #bottom = textGrob("Figure 1: The distribution of infection rate numbers in different CDC risk levels based on ANOVA and pairwise t-tests. \nAdditionally, the marginal means are also presented.",
+   #                 x = 0,
+    #                y = 0.5,
+     #               just = "left")
+  )
 
 # Save the combined plot
 ggsave("Fig/combined_plot.jpg",
        combined_plot,
        height = 6.6,
        width = 11,
-       scale = 1)
+       scale = 1,
+       dpi = 300)
 
 
 
