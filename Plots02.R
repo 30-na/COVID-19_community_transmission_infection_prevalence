@@ -20,7 +20,7 @@ load("ProcessedData/AUROC_merged.RDA")
 names(merged_counties)
 
 print("nrow sample: ")
-norow(compared_counties)
+nrow(compared_counties)
 print("    ----------------        ")
 # AUC ####
 county_list = county.NCHS %>%
