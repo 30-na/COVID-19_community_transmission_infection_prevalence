@@ -1,5 +1,6 @@
 library(data.table)
 library(dplyr)
+library(ggplot2)
 
 estimates_data = fread("RawData/estimates.csv")
 
@@ -39,23 +40,22 @@ data = estimates %>%
 
 names(data)
 
-boxPlot = function(data,
-                   x,
-                   y,
-                   xlab = "",
-                   ylab="",
-                   title = "",
-                   filename){
+boxPlot = function(filename,
+                   title){
   
   df = data.frame()
   fig = ggplot(data)+
     geom_boxplot(aes(x = community_transmission_level,
                      y = r_t,
-                     fill=community_transmission_level),alpha=.6,outlier.shape = NA)+
+                     fill=community_transmission_level),
+                 alpha=.6
+                 #,outlier.shape = NA
+                 )+
     theme_bw()+
-    labs(title = "")+
-    xlab(xlab)+
-    ylab(ylab)
+    labs(title = title)+
+    xlab("CDC Risk level")+
+    ylab("Rt")+
+    ylim(0, .5)
   
   ggsave(paste0("Figures/", filename, ".jpg"),
          fig, 
@@ -64,4 +64,6 @@ boxPlot = function(data,
          scale=1.65)
 }
 
+boxPlot(filename = "SameWeek",
+        title = "Comparing the Rt number across different CDC risk levels for the same week")
 
