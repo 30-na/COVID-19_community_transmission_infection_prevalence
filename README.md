@@ -42,4 +42,5 @@ Sources:
 13. [2010 Census Urban and Rural Classification and Urban Area Criteria](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/urban-rural/2010-urban-rural.html)
 14. [United States COVID-19 County Level of Community Transmission Historical Changes - ARCHIVED](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-County-Level-of-Community-T/nra9-vzzn)
 15. [The Covid Act Now API](https://covidactnow.org/data-api)
-16. [Covod Act Now Infection rate](https://covidactnow.org/covid-community-level-metrics#infection-rate)
+16. [Covid Act Now Infection rate](https://covidactnow.org/covid-community-level-metrics#infection-rate)
+17. [covidestim](https://covidestim.org/)
