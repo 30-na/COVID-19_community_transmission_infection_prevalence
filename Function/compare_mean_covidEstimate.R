@@ -18,14 +18,14 @@ estimates = estimates_data %>%
     date = as.Date(date, "%y/%m/%d")
   )
 
-summary(estimate)
+summary(estimates)
 
 
-CDC_data = fread("RawData/United_States_COVID-19_County_Level_of_Community_Transmission_as_Originally_Posted_-_ARCHIVED.csv")
+CDC_data = fread("RawData/United_States_COVID-19_County_Level_of_Community_Transmission_Historical_Changes_-_ARCHIVED.csv")
 
 CDC = CDC_data %>%
-  select(
-    "date" = report_date,
+  dplyr::select(
+    date,
     "fips" = fips_code,
     "county" = county_name,
     "state" = state_name,
@@ -33,12 +33,14 @@ CDC = CDC_data %>%
   ) %>%
   filter(community_transmission_level != "")%>%
   mutate(
-    date = as.Date(date, "%Y/%m/%d"),
+    date = as.Date(date, "%m/%d/%Y"),
     community_transmission_level = factor(community_transmission_level,
                                           level=c("low", "moderate", "substantial", "high"))
   )
 
 summary(CDC)
+
+
 
 
 data = estimates %>%
